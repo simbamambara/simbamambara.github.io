@@ -57,7 +57,7 @@
                         </select>
                         <select id="country-search" class="p-2 border rounded">
                             <option value="">All Countries</option>
-                            </select>
+                        </select>
                         <select id="year-search" class="p-2 border rounded">
                              <option value="">All Years</option>
                         </select>
@@ -92,9 +92,9 @@
                         <div>
                             <h3 class="text-lg font-semibold mb-2">Contract Details</h3>
                             <select id="contract-type" class="w-full p-2 border rounded mb-4">
-                                </select>
+                            </select>
                             <div id="contract-fields">
-                                </div>
+                            </div>
                             <button id="generate-contract-btn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 mt-4">Generate Contract</button>
                         </div>
                         <div>
@@ -121,12 +121,10 @@
     </div>
 
     <script>
-        // Store templates and results fetched from the backend
         let formTemplates = {};
         let contractTemplates = {};
         let currentResults = [];
 
-        // --- CORE FUNCTIONALITY TO CALL THE BACKEND ---
         async function populateDropdowns() {
             try {
                 const response = await fetch('/api/data/dropdowns');
@@ -208,8 +206,6 @@
             }
         }
 
-
-        // Tab functionality
         const tabs = document.querySelectorAll('.tab-btn');
         const tabContents = document.querySelectorAll('.tab-content');
         tabs.forEach(tab => {
@@ -222,7 +218,6 @@
             });
         });
 
-        // Case Law Search
         document.getElementById('search-btn').addEventListener('click', async () => {
             const citation = document.getElementById('citation-search').value;
             const subject = document.getElementById('subject-search').value;
@@ -287,7 +282,6 @@
                     </div>`;
         }
         
-        // Modal functionality
         const modal = document.getElementById('judgment-modal');
         const modalClose = document.getElementById('modal-close');
         
@@ -302,12 +296,10 @@
             if (e.target === modal) modal.classList.remove('active');
         });
         
-        // Legislation Search
         document.getElementById('legislation-select').addEventListener('change', (e) => {
             const selectedTitle = e.target.value;
             const container = document.getElementById('legislation-results');
             container.innerHTML = '';
-
             if (selectedTitle) {
                 container.innerHTML = `<div class="bg-gray-50 p-4 rounded-lg shadow mb-4">
                                             <h4 class="font-bold text-lg">${selectedTitle}</h4>
@@ -316,13 +308,11 @@
             }
         });
         
-        // Form Drafter
         document.getElementById('form-template-select').addEventListener('change', (e) => {
             const template = formTemplates[e.target.value] || '';
             document.getElementById('form-editor').value = template;
         });
 
-        // Contract Drafter
         const contractTypeSelect = document.getElementById('contract-type');
         const contractFieldsContainer = document.getElementById('contract-fields');
 
@@ -357,7 +347,6 @@
             document.getElementById('contract-output').value = contractText;
         });
         
-        // Clipboard functionality
         function copyToClipboard(text, btn) {
             if (!text) return;
             navigator.clipboard.writeText(text).then(() => {
@@ -379,7 +368,6 @@
             copyToClipboard(text, e.target);
         });
 
-        // Initial setup
         document.addEventListener('DOMContentLoaded', () => {
             populateDropdowns();
             fetchTemplates();
