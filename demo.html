@@ -120,258 +120,139 @@
         </div>
     </div>
 
-    <script>
-        let formTemplates = {};
-        let contractTemplates = {};
-        let currentResults = [];
+<script>
+    // ======================================================================
+    // PASTE THE NGROK URL FROM GOOGLE COLAB HERE
+    // ======================================================================
+    const API_BASE_URL = 'https://YOUR_NGROK_URL_HERE.ngrok-free.app'; 
+    // Example: const API_BASE_URL = 'https://1a2b-34-56-78-90.ngrok-free.app';
+    
+    // Store templates and results fetched from the backend
+    let formTemplates = {};
+    let contractTemplates = {};
+    let currentResults = [];
 
-        async function populateDropdowns() {
-            try {
-                const response = await fetch('/api/data/dropdowns');
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-
-                const yearSelect = document.getElementById('year-search');
-                yearSelect.innerHTML = '<option value="">All Years</option>';
-                data.years.forEach(year => {
-                    const option = document.createElement('option');
-                    option.value = year;
-                    option.innerText = year;
-                    yearSelect.appendChild(option);
-                });
-
-                const subjectSelect = document.getElementById('subject-search');
-                subjectSelect.innerHTML = '<option value="">All Subjects</option>';
-                data.subjects.forEach(subject => {
-                    const option = document.createElement('option');
-                    option.value = subject;
-                    option.innerText = subject;
-                    subjectSelect.appendChild(option);
-                });
-                
-                const countrySelect = document.getElementById('country-search');
-                countrySelect.innerHTML = '<option value="">All Countries</option>';
-                data.countries.forEach(country => {
-                    const option = document.createElement('option');
-                    option.value = country;
-                    option.innerText = country;
-                    countrySelect.appendChild(option);
-                });
-                
-                const legislationSelect = document.getElementById('legislation-select');
-                legislationSelect.innerHTML = '<option value="">Select Legislation</option>';
-                data.legislation.forEach(title => {
-                    if (title && title !== 'N/A') {
-                        const option = document.createElement('option');
-                        option.value = title;
-                        option.innerText = title;
-                        legislationSelect.appendChild(option);
-                    }
-                });
-
-            } catch (error) {
-                console.error("Failed to fetch dropdown data:", error);
-            }
-        }
-        
-        async function fetchTemplates() {
-            try {
-                const response = await fetch('/api/draft/templates');
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                formTemplates = data.forms;
-                contractTemplates = data.contracts;
-                
-                const formSelect = document.getElementById('form-template-select');
-                formSelect.innerHTML = '<option value="">Select a form template</option>';
-                Object.keys(formTemplates).forEach(key => {
-                    const option = document.createElement('option');
-                    option.value = key;
-                    option.innerText = (key.charAt(0).toUpperCase() + key.slice(1)).replace(/_/g, ' ');
-                    formSelect.appendChild(option);
-                });
-                
-                const contractSelect = document.getElementById('contract-type');
-                contractSelect.innerHTML = '';
-                Object.keys(contractTemplates).forEach(key => {
-                    const option = document.createElement('option');
-                    option.value = key;
-                    option.innerText = contractTemplates[key].template.split('\n')[0];
-                    contractSelect.appendChild(option);
-                });
-                generateContractFields();
-
-            } catch (error) {
-                console.error("Failed to fetch templates:", error);
-            }
-        }
-
-        const tabs = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.dataset.tab;
-                tabs.forEach(t => t.classList.remove('border-blue-500', 'text-gray-800', 'font-semibold'));
-                tab.classList.add('border-blue-500', 'text-gray-800', 'font-semibold');
-                tabContents.forEach(content => content.classList.remove('active'));
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-
-        document.getElementById('search-btn').addEventListener('click', async () => {
-            const citation = document.getElementById('citation-search').value;
-            const subject = document.getElementById('subject-search').value;
-            const country = document.getElementById('country-search').value;
-            const year = document.getElementById('year-search').value;
-
-            const params = new URLSearchParams({ citation, subject, country, year });
-            const resultsContainer = document.getElementById('search-results');
-            resultsContainer.innerHTML = '<p class="text-gray-500">Searching...</p>';
-
-            try {
-                const response = await fetch(`/api/search/case-law?${params.toString()}`);
-                if (!response.ok) throw new Error('Search failed');
-                currentResults = await response.json();
-                displayResults(currentResults);
-            } catch (error) {
-                resultsContainer.innerHTML = '<p class="text-red-500">Error fetching search results.</p>';
-                console.error("Search failed:", error);
-            }
-        });
-        
-        function displayResults(results) {
-            const resultsContainer = document.getElementById('search-results');
-            resultsContainer.innerHTML = '';
+    async function populateDropdowns() {
+        try {
+            // Use the full API URL
+            const response = await fetch(`${API_BASE_URL}/api/data/dropdowns`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
             
-            if (results.length === 0) {
-                resultsContainer.innerHTML = '<p class="text-gray-500">No results found.</p>';
-                return;
-            }
-
-            const zimResults = results.filter(r => r.country === 'Zimbabwe');
-            const foreignResults = results.filter(r => r.country !== 'Zimbabwe' && r.country !== 'N/A');
-
-            if (zimResults.length > 0) {
-                resultsContainer.innerHTML += '<h3 class="text-xl font-bold mb-2 text-gray-700">Zimbabwean Judgments</h3>';
-                zimResults.forEach(r => resultsContainer.innerHTML += resultCard(r));
-            }
-
-            if (foreignResults.length > 0) {
-                resultsContainer.innerHTML += '<h3 class="text-xl font-bold mt-6 mb-2 text-gray-700">Foreign Judgments</h3>';
-                foreignResults.forEach(r => resultsContainer.innerHTML += resultCard(r));
-            }
-            
-            document.querySelectorAll('.view-judgment-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const citation = e.target.dataset.citation;
-                    const judgment = currentResults.find(j => j.citation === citation);
-                    if (judgment) {
-                        openModal(judgment);
-                    }
-                });
+            // ... (The rest of the populateDropdowns function is the same)
+            const yearSelect = document.getElementById('year-search');
+            yearSelect.innerHTML = '<option value="">All Years</option>';
+            data.years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year; option.innerText = year; yearSelect.appendChild(option);
             });
-        }
-
-        function resultCard(r) {
-            return `<div class="bg-gray-50 p-4 rounded-lg shadow mb-4">
-                        <h4 class="font-bold text-lg">${r.case_name} (${r.citation})</h4>
-                        <p><strong>Subject:</strong> ${r.subject}</p>
-                        <p><strong>Country:</strong> ${r.country}</p>
-                        <p><strong>Year:</strong> ${r.year}</p>
-                        <button class="view-judgment-btn mt-2 text-blue-600 hover:underline" data-citation="${r.citation}">View Judgment</button>
-                    </div>`;
-        }
-        
-        const modal = document.getElementById('judgment-modal');
-        const modalClose = document.getElementById('modal-close');
-        
-        function openModal(judgment) {
-            document.getElementById('modal-title').innerText = `${judgment.case_name} - ${judgment.citation}`;
-            document.getElementById('modal-body').innerText = judgment.body || 'Full text not available.';
-            modal.classList.add('active');
-        }
-
-        modalClose.addEventListener('click', () => modal.classList.remove('active'));
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.remove('active');
-        });
-        
-        document.getElementById('legislation-select').addEventListener('change', (e) => {
-            const selectedTitle = e.target.value;
-            const container = document.getElementById('legislation-results');
-            container.innerHTML = '';
-            if (selectedTitle) {
-                container.innerHTML = `<div class="bg-gray-50 p-4 rounded-lg shadow mb-4">
-                                            <h4 class="font-bold text-lg">${selectedTitle}</h4>
-                                            <p>Full text view for legislation can be implemented here.</p>
-                                       </div>`;
-            }
-        });
-        
-        document.getElementById('form-template-select').addEventListener('change', (e) => {
-            const template = formTemplates[e.target.value] || '';
-            document.getElementById('form-editor').value = template;
-        });
-
-        const contractTypeSelect = document.getElementById('contract-type');
-        const contractFieldsContainer = document.getElementById('contract-fields');
-
-        function generateContractFields() {
-            const contractType = contractTypeSelect.value;
-            if (!contractTemplates[contractType]) return;
-            const fields = contractTemplates[contractType].fields;
-            contractFieldsContainer.innerHTML = '';
-            fields.forEach(field => {
-                const input = document.createElement('input');
-                input.type = field.type || 'text';
-                input.id = field.id;
-                input.placeholder = field.placeholder;
-                input.className = 'w-full p-2 border rounded mb-2';
-                contractFieldsContainer.appendChild(input);
+            const subjectSelect = document.getElementById('subject-search');
+            subjectSelect.innerHTML = '<option value="">All Subjects</option>';
+            data.subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject; option.innerText = subject; subjectSelect.appendChild(option);
             });
-        }
-        
-        contractTypeSelect.addEventListener('change', generateContractFields);
-
-        document.getElementById('generate-contract-btn').addEventListener('click', () => {
-            const contractType = contractTypeSelect.value;
-            if (!contractTemplates[contractType]) return;
-            let contractText = contractTemplates[contractType].template;
-            
-            contractTemplates[contractType].fields.forEach(field => {
-                const value = document.getElementById(field.id).value;
-                const regex = new RegExp(`\\[${field.placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\]`, 'g');
-                contractText = contractText.replace(regex, value || `[${field.placeholder}]`);
+            const countrySelect = document.getElementById('country-search');
+            countrySelect.innerHTML = '<option value="">All Countries</option>';
+            data.countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country; option.innerText = country; countrySelect.appendChild(option);
             });
-            
-            document.getElementById('contract-output').value = contractText;
-        });
-        
-        function copyToClipboard(text, btn) {
-            if (!text) return;
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = btn.innerText;
-                btn.innerText = 'Copied!';
-                setTimeout(() => { btn.innerText = originalText; }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
+            const legislationSelect = document.getElementById('legislation-select');
+            legislationSelect.innerHTML = '<option value="">Select Legislation</option>';
+            data.legislation.forEach(title => {
+                if (title && title !== 'N/A') {
+                    const option = document.createElement('option');
+                    option.value = title; option.innerText = title; legislationSelect.appendChild(option);
+                }
             });
+        } catch (error) {
+            console.error("Failed to fetch dropdown data from Colab:", error);
+            alert("Could not connect to the backend. Please ensure the Google Colab notebook is running.");
         }
+    }
+    
+    async function fetchTemplates() {
+        try {
+            // Use the full API URL
+            const response = await fetch(`${API_BASE_URL}/api/draft/templates`);
+            // ... (The rest of the function is the same, only the URL changes)
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            formTemplates = data.forms;
+            contractTemplates = data.contracts;
+            const formSelect = document.getElementById('form-template-select');
+            formSelect.innerHTML = '<option value="">Select a form template</option>';
+            Object.keys(formTemplates).forEach(key => {
+                const option = document.createElement('option');
+                option.value = key; option.innerText = (key.charAt(0).toUpperCase() + key.slice(1)).replace(/_/g, ' '); formSelect.appendChild(option);
+            });
+            const contractSelect = document.getElementById('contract-type');
+            contractSelect.innerHTML = '';
+            Object.keys(contractTemplates).forEach(key => {
+                const option = document.createElement('option');
+                option.value = key; option.innerText = contractTemplates[key].template.split('\n')[0]; contractSelect.appendChild(option);
+            });
+            generateContractFields();
+        } catch (error) {
+            console.error("Failed to fetch templates:", error);
+        }
+    }
 
-        document.getElementById('copy-form-btn').addEventListener('click', (e) => {
-            const text = document.getElementById('form-editor').value;
-            copyToClipboard(text, e.target);
-        });
+    document.getElementById('search-btn').addEventListener('click', async () => {
+        const citation = document.getElementById('citation-search').value;
+        const subject = document.getElementById('subject-search').value;
+        const country = document.getElementById('country-search').value;
+        const year = document.getElementById('year-search').value;
+        const params = new URLSearchParams({ citation, subject, country, year });
+        const resultsContainer = document.getElementById('search-results');
+        resultsContainer.innerHTML = '<p class="text-gray-500">Searching...</p>';
+        try {
+            // Use the full API URL
+            const response = await fetch(`${API_BASE_URL}/api/search/case-law?${params.toString()}`);
+            if (!response.ok) throw new Error('Search failed');
+            currentResults = await response.json();
+            displayResults(currentResults);
+        } catch (error) {
+            resultsContainer.innerHTML = '<p class="text-red-500">Error: Could not fetch search results. Is the Colab backend running?</p>';
+            console.error("Search failed:", error);
+        }
+    });
 
-        document.getElementById('copy-contract-btn').addEventListener('click', (e) => {
-            const text = document.getElementById('contract-output').value;
-            copyToClipboard(text, e.target);
+    // --- NO MORE CHANGES NEEDED BELOW THIS LINE ---
+    // (The rest of the functions like displayResults, resultCard, openModal, etc. are identical)
+    
+    function displayResults(results) {
+        const resultsContainer = document.getElementById('search-results');
+        resultsContainer.innerHTML = '';
+        if (results.length === 0) { resultsContainer.innerHTML = '<p class="text-gray-500">No results found.</p>'; return; }
+        const zimResults = results.filter(r => r.country === 'Zimbabwe');
+        const foreignResults = results.filter(r => r.country !== 'Zimbabwe' && r.country !== 'N/A');
+        if (zimResults.length > 0) { resultsContainer.innerHTML += '<h3 class="text-xl font-bold mb-2 text-gray-700">Zimbabwean Judgments</h3>'; zimResults.forEach(r => resultsContainer.innerHTML += resultCard(r)); }
+        if (foreignResults.length > 0) { resultsContainer.innerHTML += '<h3 class="text-xl font-bold mt-6 mb-2 text-gray-700">Foreign Judgments</h3>'; foreignResults.forEach(r => resultsContainer.innerHTML += resultCard(r)); }
+        document.querySelectorAll('.view-judgment-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const citation = e.target.dataset.citation; const judgment = currentResults.find(j => j.citation === citation); if (judgment) { openModal(judgment); }
+            });
         });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            populateDropdowns();
-            fetchTemplates();
-        });
-    </script>
+    }
+    function resultCard(r) { return `<div class="bg-gray-50 p-4 rounded-lg shadow mb-4"><h4 class="font-bold text-lg">${r.case_name} (${r.citation})</h4><p><strong>Subject:</strong> ${r.subject}</p><p><strong>Country:</strong> ${r.country}</p><p><strong>Year:</strong> ${r.year}</p><button class="view-judgment-btn mt-2 text-blue-600 hover:underline" data-citation="${r.citation}">View Judgment</button></div>`; }
+    const modal = document.getElementById('judgment-modal'); const modalClose = document.getElementById('modal-close');
+    function openModal(judgment) { document.getElementById('modal-title').innerText = `${judgment.case_name} - ${judgment.citation}`; document.getElementById('modal-body').innerText = judgment.body || 'Full text not available.'; modal.classList.add('active'); }
+    modalClose.addEventListener('click', () => modal.classList.remove('active'));
+    window.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+    const tabs = document.querySelectorAll('.tab-btn'); const tabContents = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => { tab.addEventListener('click', () => { const tabId = tab.dataset.tab; tabs.forEach(t => t.classList.remove('border-blue-500', 'text-gray-800', 'font-semibold')); tab.classList.add('border-blue-500', 'text-gray-800', 'font-semibold'); tabContents.forEach(content => content.classList.remove('active')); document.getElementById(tabId).classList.add('active'); }); });
+    document.getElementById('legislation-select').addEventListener('change', (e) => { const selectedTitle = e.target.value; const container = document.getElementById('legislation-results'); container.innerHTML = ''; if (selectedTitle) { container.innerHTML = `<div class="bg-gray-50 p-4 rounded-lg shadow mb-4"><h4 class="font-bold text-lg">${selectedTitle}</h4><p>Full text view for legislation can be implemented here.</p></div>`; } });
+    document.getElementById('form-template-select').addEventListener('change', (e) => { const template = formTemplates[e.target.value] || ''; document.getElementById('form-editor').value = template; });
+    const contractTypeSelect = document.getElementById('contract-type'); const contractFieldsContainer = document.getElementById('contract-fields');
+    function generateContractFields() { const contractType = contractTypeSelect.value; if (!contractTemplates[contractType]) return; const fields = contractTemplates[contractType].fields; contractFieldsContainer.innerHTML = ''; fields.forEach(field => { const input = document.createElement('input'); input.type = field.type || 'text'; input.id = field.id; input.placeholder = field.placeholder; input.className = 'w-full p-2 border rounded mb-2'; contractFieldsContainer.appendChild(input); }); }
+    contractTypeSelect.addEventListener('change', generateContractFields);
+    document.getElementById('generate-contract-btn').addEventListener('click', () => { const contractType = contractTypeSelect.value; if (!contractTemplates[contractType]) return; let contractText = contractTemplates[contractType].template; contractTemplates[contractType].fields.forEach(field => { const value = document.getElementById(field.id).value; const regex = new RegExp(`\\[${field.placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\]`, 'g'); contractText = contractText.replace(regex, value || `[${field.placeholder}]`); }); document.getElementById('contract-output').value = contractText; });
+    function copyToClipboard(text, btn) { if (!text) return; navigator.clipboard.writeText(text).then(() => { const originalText = btn.innerText; btn.innerText = 'Copied!'; setTimeout(() => { btn.innerText = originalText; }, 2000); }).catch(err => { console.error('Failed to copy text: ', err); }); }
+    document.getElementById('copy-form-btn').addEventListener('click', (e) => { const text = document.getElementById('form-editor').value; copyToClipboard(text, e.target); });
+    document.getElementById('copy-contract-btn').addEventListener('click', (e) => { const text = document.getElementById('contract-output').value; copyToClipboard(text, e.target); });
+    document.addEventListener('DOMContentLoaded', () => { populateDropdowns(); fetchTemplates(); });
+</script>
 </body>
 </html>
