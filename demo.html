@@ -1,208 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zimbabwe LexLM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <style>
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .modal {
-            display: none;
-        }
-        .modal.active {
-            display: flex;
-        }
-    </style>
-</head>
-<body class="bg-gray-100 font-sans">
+<script>
+    // Store templates fetched from the backend
+    let formTemplates = {};
+    let contractTemplates = {};
 
-    <header class="bg-white shadow-md">
-        <div class="container mx-auto px-6 py-4">
-            <h1 class="text-3xl font-bold text-gray-800">Zimbabwe LexLM</h1>
-            <p class="text-gray-600">a Simba Mambara Creation</p>
-        </div>
-    </header>
+    // --- CORE FUNCTIONALITY TO CALL THE BACKEND ---
 
-    <main class="container mx-auto px-6 py-8">
-        <div class="bg-white rounded-lg shadow-xl">
-            <!-- Tabs -->
-            <div class="flex border-b overflow-x-auto">
-                <button class="tab-btn active:border-blue-500 text-gray-700 font-semibold py-4 px-6 block hover:text-blue-500 focus:outline-none border-b-2 font-medium border-blue-500 whitespace-nowrap" data-tab="case-law">
-                    <i class="fas fa-gavel mr-2"></i>Case Law Search
-                </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none whitespace-nowrap" data-tab="legislation">
-                    <i class="fas fa-book mr-2"></i>Legislation Search
-                </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none whitespace-nowrap" data-tab="form-drafter">
-                    <i class="fas fa-file-alt mr-2"></i>Form Drafter
-                </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none whitespace-nowrap" data-tab="contract-drafter">
-                    <i class="fas fa-file-signature mr-2"></i>Contract Drafter
-                </button>
-            </div>
+    // Function to populate dropdowns with data from the backend
+    async function populateDropdowns() {
+        try {
+            const response = await fetch('/api/data/dropdowns');
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
 
-            <!-- Tab Content -->
-            <div class="p-6">
-                <!-- Case Law Search -->
-                <div id="case-law" class="tab-content active">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Search for Judgments</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <input type="text" id="citation-search" placeholder="Citation (e.g., 2023 ZWSC 1)" class="p-2 border rounded">
-                        <select id="subject-search" class="p-2 border rounded">
-                            <option value="">All Subjects</option>
-                        </select>
-                        <select id="country-search" class="p-2 border rounded">
-                            <option value="">All Countries</option>
-                            <option value="Zimbabwe">Zimbabwe</option>
-                            <option value="South Africa">South Africa</option>
-                            <option value="England">England</option>
-                        </select>
-                        <select id="year-search" class="p-2 border rounded">
-                             <option value="">All Years</option>
-                        </select>
-                    </div>
-                    <button id="search-btn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Search</button>
-
-                    <div id="search-results" class="mt-8"></div>
-                </div>
-
-                <!-- Legislation Search -->
-                <div id="legislation" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Search for Legislation</h2>
-                    <div class="grid grid-cols-1 gap-4 mb-6">
-                        <select id="legislation-select" class="p-2 border rounded">
-                            <option value="">Select Legislation</option>
-                        </select>
-                    </div>
-                    <div id="legislation-results" class="mt-8"></div>
-                </div>
-
-                <!-- Form Drafter -->
-                <div id="form-drafter" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Draft a Legal Form</h2>
-                    <select id="form-template-select" class="p-2 border rounded mb-4">
-                        <option value="">Select a form template</option>
-                        <option value="affidavit">Affidavit</option>
-                        <option value="summons">Summons</option>
-                        <option value="lease_agreement">Lease Agreement</option>
-                        <option value="power_of_attorney">Power of Attorney</option>
-                    </select>
-                    <textarea id="form-editor" rows="20" class="w-full p-2 border rounded" placeholder="Your form will be generated here..."></textarea>
-                    <button id="copy-form-btn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 mt-4">Copy to Clipboard</button>
-                </div>
-
-                <!-- Contract Drafter -->
-                <div id="contract-drafter" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Draft a Contract</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Contract Details</h3>
-                            <select id="contract-type" class="w-full p-2 border rounded mb-4">
-                                <option value="employment">Employment Contract</option>
-                                <option value="nda">Non-Disclosure Agreement</option>
-                                <option value="freelance">Freelance Agreement</option>
-                            </select>
-                            <div id="contract-fields">
-                                <!-- Fields will be dynamically generated here -->
-                            </div>
-                            <button id="generate-contract-btn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 mt-4">Generate Contract</button>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Generated Contract</h3>
-                            <textarea id="contract-output" rows="20" class="w-full p-2 border rounded bg-gray-50" readonly></textarea>
-                             <button id="copy-contract-btn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 mt-4">Copy to Clipboard</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Modal for Judgment View -->
-    <div id="judgment-modal" class="modal fixed inset-0 bg-gray-800 bg-opacity-75 items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-2xl w-full max-w-3xl max-h-full overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h3 id="modal-title" class="text-xl font-bold"></h3>
-                    <button id="modal-close" class="text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
-                </div>
-                <div id="modal-body" class="mt-4 prose max-w-none"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // --- ENHANCED MOCK DATA (Simulating data from Parquet file) ---
-        const mockJudgments = [
-            { citation: '2023 ZWSC 1', subject: 'Civil Procedure', country: 'Zimbabwe', year: 2023, case_name: 'Smith v Jones', body: 'This is the full text of the judgment for Smith v Jones...' },
-            { citation: '2022 ZWHHC 5', subject: 'Criminal Law', country: 'Zimbabwe', year: 2022, case_name: 'State v Moyo', body: 'Full judgment text for State v Moyo...' },
-            { citation: '2021 ZACC 10', subject: 'Constitutional Law', country: 'South Africa', year: 2021, case_name: 'Democracy v State', body: 'Full judgment text for Democracy v State...' },
-            { citation: '[2020] UKSC 3', subject: 'Administrative Law', country: 'England', year: 2020, case_name: 'Miller v The Crown', body: 'Full judgment text for Miller v The Crown...' },
-            { citation: '2023 ZWMS 12', subject: 'Family Law', country: 'Zimbabwe', year: 2023, case_name: 'Gumbo v Gumbo', body: 'Details on divorce proceedings...' },
-            { citation: '2021 ZWLC 3', subject: 'Labour Law', country: 'Zimbabwe', year: 2021, case_name: 'Dube v ZimTiles', body: 'Unfair dismissal case...' },
-            { citation: '2020 SCA 15', subject: 'Contract Law', country: 'South Africa', year: 2020, case_name: 'Pillay v Naidoo', body: 'Breach of contract dispute...' },
-            { citation: '[2019] EWHC 55', subject: 'Property Law', country: 'England', year: 2019, case_name: 'Davies v Properties Ltd', body: 'Land dispute resolution...' },
-        ];
-
-        const mockLegislation = [
-            { title: 'Companies and Other Business Entities Act [Chapter 24:31]', type: 'Act' },
-            { title: 'Labour Act [Chapter 28:01]', type: 'Act' },
-            { title: 'Criminal Law (Codification and Reform) Act [Chapter 9:23]', type: 'Act' },
-            { title: 'Constitution of Zimbabwe Amendment (No. 20) Act, 2013', type: 'Act' },
-            { title: 'SI 153 of 2023 - Exchange Control Regulations', type: 'Statutory Instrument' },
-            { title: 'SI 65 of 2020 - Public Health (COVID-19 Prevention, Containment and Treatment) Regulations', type: 'Statutory Instrument' },
-        ];
-
-        const formTemplates = {
-            affidavit: `AFFIDAVIT\\n\\nI, the undersigned,\\n\\n[Full Name]\\n\\nID Number: [ID Number]\\n\\nResiding at: [Address]\\n\\nDo hereby make oath and state that...`,
-            summons: `SUMMONS\\n\\nIN THE MAGISTRATE'S COURT FOR THE DISTRICT OF [District]\\n\\nCase No: [Case Number]\\n\\nBetween:\\n\\n[Plaintiff Name] - Plaintiff\\n\\nand\\n\\n[Defendant Name] - Defendant`,
-            lease_agreement: `RESIDENTIAL LEASE AGREEMENT\\n\\nThis lease is made between [Landlord Name] ("Landlord") and [Tenant Name] ("Tenant")...`,
-            power_of_attorney: `POWER OF ATTORNEY\\n\\nI, [Principal Name], hereby appoint [Agent Name] as my attorney-in-fact...`
-        };
-        
-        const contractTemplates = {
-            employment: {
-                fields: [
-                    { id: 'employee-name', placeholder: 'Employee Name' },
-                    { id: 'employer-name', placeholder: 'Employer Name' },
-                    { id: 'job-title', placeholder: 'Job Title' },
-                    { id: 'salary', placeholder: 'Salary' },
-                    { id: 'start-date', placeholder: 'Start Date', type: 'date' }
-                ],
-                template: `EMPLOYMENT CONTRACT\\n\\nBetween:\\n[Employer Name] (the "Employer")\\n\\nand\\n\\n[Employee Name] (the "Employee")\\n\\n1. APPOINTMENT\\nThe Employee is appointed as [Job Title], commencing on [Start Date].\\n\\n2. REMUNERATION\\nThe Employee's salary will be [Salary] per month.`
-            },
-            nda: {
-                fields: [
-                    { id: 'disclosing-party', placeholder: 'Disclosing Party' },
-                    { id: 'receiving-party', placeholder: 'Receiving Party' },
-                    { id: 'effective-date', placeholder: 'Effective Date', type: 'date' }
-                ],
-                template: `NON-DISCLOSURE AGREEMENT\\n\\nThis Agreement is between [Disclosing Party] and [Receiving Party], effective [Effective Date]...`
-            },
-            freelance: {
-                fields: [
-                    { id: 'client-name', placeholder: 'Client Name' },
-                    { id: 'freelancer-name', placeholder: 'Freelancer Name' },
-                    { id: 'project-description', placeholder: 'Project Description' },
-                    { id: 'fee', placeholder: 'Project Fee' }
-                ],
-                template: `FREELANCE AGREEMENT\\n\\nThis agreement is between [Client Name] ("Client") and [Freelancer Name] ("Freelancer") for the following project: [Project Description] for a fee of [Project Fee].`
-            }
-        };
-
-        // --- Function to populate dropdowns ---
-        function populateDropdowns() {
             // Populate years
             const yearSelect = document.getElementById('year-search');
-            const years = [...new Set(mockJudgments.map(j => j.year))].sort((a, b) => b - a);
-            years.forEach(year => {
+            yearSelect.innerHTML = '<option value="">All Years</option>'; // Reset
+            data.years.forEach(year => {
                 const option = document.createElement('option');
                 option.value = year;
                 option.innerText = year;
@@ -211,196 +24,246 @@
 
             // Populate subjects
             const subjectSelect = document.getElementById('subject-search');
-            const subjects = [...new Set(mockJudgments.map(j => j.subject))].sort();
-            subjects.forEach(subject => {
+            subjectSelect.innerHTML = '<option value="">All Subjects</option>'; // Reset
+            data.subjects.forEach(subject => {
                 const option = document.createElement('option');
                 option.value = subject;
                 option.innerText = subject;
                 subjectSelect.appendChild(option);
             });
-
+            
             // Populate legislation
             const legislationSelect = document.getElementById('legislation-select');
-            mockLegislation.forEach(leg => {
-                const option = document.createElement('option');
-                option.value = leg.title;
-                option.innerText = leg.title;
-                legislationSelect.appendChild(option);
-            });
-        }
-
-
-        // Tab functionality
-        const tabs = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const tabId = tab.dataset.tab;
-                tabs.forEach(t => t.classList.remove('border-blue-500', 'text-gray-800', 'font-semibold'));
-                tab.classList.add('border-blue-500', 'text-gray-800', 'font-semibold');
-                tabContents.forEach(content => content.classList.remove('active'));
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-
-        // Case Law Search
-        document.getElementById('search-btn').addEventListener('click', () => {
-            const citation = document.getElementById('citation-search').value.toLowerCase();
-            const subject = document.getElementById('subject-search').value;
-            const country = document.getElementById('country-search').value;
-            const year = document.getElementById('year-search').value;
-
-            const results = mockJudgments.filter(j => 
-                (citation === '' || j.citation.toLowerCase().includes(citation)) &&
-                (subject === '' || j.subject === subject) &&
-                (country === '' || j.country === country) &&
-                (year === '' || j.year == year)
-            );
-
-            displayResults(results);
-        });
-        
-        function displayResults(results) {
-            const resultsContainer = document.getElementById('search-results');
-            resultsContainer.innerHTML = '';
-            
-            const zimResults = results.filter(r => r.country === 'Zimbabwe');
-            const foreignResults = results.filter(r => r.country !== 'Zimbabwe');
-
-            if (zimResults.length > 0) {
-                resultsContainer.innerHTML += '<h3 class="text-xl font-bold mb-2 text-gray-700">Zimbabwean Judgments</h3>';
-                zimResults.forEach(r => resultsContainer.innerHTML += resultCard(r));
-            }
-
-            if (foreignResults.length > 0) {
-                resultsContainer.innerHTML += '<h3 class="text-xl font-bold mt-6 mb-2 text-gray-700">Foreign Judgments</h3>';
-                foreignResults.forEach(r => resultsContainer.innerHTML += resultCard(r));
-            }
-            
-            if(results.length === 0) {
-                resultsContainer.innerHTML = '<p class="text-gray-500">No results found for your criteria.</p>';
-            }
-            
-            document.querySelectorAll('.view-judgment-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const citation = e.target.dataset.citation;
-                    const judgment = mockJudgments.find(j => j.citation === citation);
-                    openModal(judgment);
-                });
-            });
-        }
-
-        function resultCard(r) {
-            return `<div class="bg-gray-50 p-4 rounded-lg shadow mb-4">
-                        <h4 class="font-bold text-lg">${r.case_name} (${r.citation})</h4>
-                        <p><strong>Subject:</strong> ${r.subject}</p>
-                        <p><strong>Country:</strong> ${r.country}</p>
-                        <p><strong>Year:</strong> ${r.year}</p>
-                        <button class="view-judgment-btn mt-2 text-blue-600 hover:underline" data-citation="${r.citation}">View Judgment</button>
-                    </div>`;
-        }
-        
-        // Modal
-        const modal = document.getElementById('judgment-modal');
-        const modalClose = document.getElementById('modal-close');
-        
-        function openModal(judgment) {
-            document.getElementById('modal-title').innerText = `${judgment.case_name} - ${judgment.citation}`;
-            document.getElementById('modal-body').innerText = judgment.body;
-            modal.classList.add('active');
-        }
-
-        modalClose.addEventListener('click', () => modal.classList.remove('active'));
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('active');
-            }
-        });
-        
-        // Legislation Search
-        document.getElementById('legislation-select').addEventListener('change', (e) => {
-            const selectedTitle = e.target.value;
-            const container = document.getElementById('legislation-results');
-            container.innerHTML = '';
-
-            if (selectedTitle) {
-                const result = mockLegislation.find(l => l.title === selectedTitle);
-                if (result) {
-                     container.innerHTML += `<div class="bg-gray-50 p-4 rounded-lg shadow mb-4">
-                                                <h4 class="font-bold text-lg">${result.title}</h4>
-                                                <p><strong>Type:</strong> ${result.type}</p>
-                                            </div>`;
+            legislationSelect.innerHTML = '<option value="">Select Legislation</option>'; // Reset
+            data.legislation.forEach(title => {
+                if (title) { // Ensure title is not null/empty
+                    const option = document.createElement('option');
+                    option.value = title;
+                    option.innerText = title;
+                    legislationSelect.appendChild(option);
                 }
-            }
-        });
-        
-        // Form Drafter
-        document.getElementById('form-template-select').addEventListener('change', (e) => {
-            const template = formTemplates[e.target.value] || '';
-            document.getElementById('form-editor').value = template;
-        });
-
-        // Contract Drafter
-        const contractTypeSelect = document.getElementById('contract-type');
-        const contractFieldsContainer = document.getElementById('contract-fields');
-
-        function generateContractFields() {
-            const contractType = contractTypeSelect.value;
-            const fields = contractTemplates[contractType].fields;
-            contractFieldsContainer.innerHTML = '';
-            fields.forEach(field => {
-                const input = document.createElement('input');
-                input.type = field.type || 'text';
-                input.id = field.id;
-                input.placeholder = field.placeholder;
-                input.className = 'w-full p-2 border rounded mb-2';
-                contractFieldsContainer.appendChild(input);
             });
-        }
-        
-        contractTypeSelect.addEventListener('change', generateContractFields);
 
-        document.getElementById('generate-contract-btn').addEventListener('click', () => {
-            const contractType = contractTypeSelect.value;
-            let contract = contractTemplates[contractType].template;
+        } catch (error) {
+            console.error("Failed to fetch dropdown data:", error);
+        }
+    }
+    
+    // Function to fetch all drafting templates
+    async function fetchTemplates() {
+        try {
+            const response = await fetch('/api/draft/templates');
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            formTemplates = data.forms;
+            contractTemplates = data.contracts;
             
-            contractTemplates[contractType].fields.forEach(field => {
-                const value = document.getElementById(field.id).value;
-                const regex = new RegExp(`\\[${field.placeholder}\\]`, 'g');
-                contract = contract.replace(regex, value || `[${field.placeholder}]`);
+            // Populate form drafter dropdown
+            const formSelect = document.getElementById('form-template-select');
+            formSelect.innerHTML = '<option value="">Select a form template</option>';
+            Object.keys(formTemplates).forEach(key => {
+                const option = document.createElement('option');
+                option.value = key;
+                // Capitalize and replace underscores for display
+                option.innerText = (key.charAt(0).toUpperCase() + key.slice(1)).replace(/_/g, ' ');
+                formSelect.appendChild(option);
             });
             
-            document.getElementById('contract-output').value = contract;
-        });
-        
-        // Clipboard functionality
-        function copyToClipboard(text, btn) {
-            if (!text) return;
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = btn.innerText;
-                btn.innerText = 'Copied!';
-                setTimeout(() => { btn.innerText = originalText; }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
+            // Populate contract drafter dropdown and generate initial fields
+            const contractSelect = document.getElementById('contract-type');
+            contractSelect.innerHTML = '';
+            Object.keys(contractTemplates).forEach(key => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.innerText = contractTemplates[key].template.split('\\n')[0]; // Use first line as name
+                contractSelect.appendChild(option);
             });
+            generateContractFields(); // Generate fields for the default selection
+
+        } catch (error) {
+            console.error("Failed to fetch templates:", error);
+        }
+    }
+
+
+    // Tab functionality (no changes needed here)
+    const tabs = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabId = tab.dataset.tab;
+            tabs.forEach(t => t.classList.remove('border-blue-500', 'text-gray-800', 'font-semibold'));
+            tab.classList.add('border-blue-500', 'text-gray-800', 'font-semibold');
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // Case Law Search - UPDATED to call API
+    document.getElementById('search-btn').addEventListener('click', async () => {
+        const citation = document.getElementById('citation-search').value;
+        const subject = document.getElementById('subject-search').value;
+        const country = document.getElementById('country-search').value;
+        const year = document.getElementById('year-search').value;
+
+        // Build query string
+        const params = new URLSearchParams({ citation, subject, country, year });
+        const resultsContainer = document.getElementById('search-results');
+        resultsContainer.innerHTML = '<p class="text-gray-500">Searching...</p>';
+
+        try {
+            const response = await fetch(`/api/search/case-law?${params.toString()}`);
+            if (!response.ok) throw new Error('Search failed');
+            const results = await response.json();
+            displayResults(results);
+        } catch (error) {
+            resultsContainer.innerHTML = '<p class="text-red-500">Error fetching search results.</p>';
+            console.error("Search failed:", error);
+        }
+    });
+    
+    function displayResults(results) {
+        const resultsContainer = document.getElementById('search-results');
+        resultsContainer.innerHTML = '';
+        
+        if (results.length === 0) {
+            resultsContainer.innerHTML = '<p class="text-gray-500">No results found for your criteria.</p>';
+            return;
         }
 
-        document.getElementById('copy-form-btn').addEventListener('click', (e) => {
-            const text = document.getElementById('form-editor').value;
-            copyToClipboard(text, e.target);
-        });
+        const zimResults = results.filter(r => r.country === 'Zimbabwe');
+        const foreignResults = results.filter(r => r.country !== 'Zimbabwe');
 
-        document.getElementById('copy-contract-btn').addEventListener('click', (e) => {
-            const text = document.getElementById('contract-output').value;
-            copyToClipboard(text, e.target);
-        });
+        if (zimResults.length > 0) {
+            resultsContainer.innerHTML += '<h3 class="text-xl font-bold mb-2 text-gray-700">Zimbabwean Judgments</h3>';
+            zimResults.forEach(r => resultsContainer.innerHTML += resultCard(r));
+        }
 
-        // Initial setup
-        document.addEventListener('DOMContentLoaded', () => {
-            populateDropdowns();
-            generateContractFields(); // Generate fields for the default contract type
+        if (foreignResults.length > 0) {
+            resultsContainer.innerHTML += '<h3 class="text-xl font-bold mt-6 mb-2 text-gray-700">Foreign Judgments</h3>';
+            foreignResults.forEach(r => resultsContainer.innerHTML += resultCard(r));
+        }
+        
+        // Re-attach event listeners for the new "View Judgment" buttons
+        document.querySelectorAll('.view-judgment-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const citation = e.target.dataset.citation;
+                // Find the full judgment object from the fetched results
+                const judgment = results.find(j => j.citation === citation);
+                if (judgment) {
+                    openModal(judgment);
+                }
+            });
         });
+    }
 
-    </script>
-</body>
-</html>
+    function resultCard(r) {
+        return `<div class="bg-gray-50 p-4 rounded-lg shadow mb-4">
+                    <h4 class="font-bold text-lg">${r.case_name || 'N/A'} (${r.citation || 'N/A'})</h4>
+                    <p><strong>Subject:</strong> ${r.subject || 'N/A'}</p>
+                    <p><strong>Country:</strong> ${r.country || 'N/A'}</p>
+                    <p><strong>Year:</strong> ${r.year || 'N/A'}</p>
+                    <button class="view-judgment-btn mt-2 text-blue-600 hover:underline" data-citation="${r.citation}">View Judgment</button>
+                </div>`;
+    }
+    
+    // Modal functionality (no changes needed here)
+    const modal = document.getElementById('judgment-modal');
+    const modalClose = document.getElementById('modal-close');
+    
+    function openModal(judgment) {
+        document.getElementById('modal-title').innerText = `${judgment.case_name || 'N/A'} - ${judgment.citation || 'N/A'}`;
+        document.getElementById('modal-body').innerText = judgment.body || 'Full text not available.';
+        modal.classList.add('active');
+    }
+
+    modalClose.addEventListener('click', () => modal.classList.remove('active'));
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    });
+    
+    // Legislation Search - Simplified, as details are not in the provided data structure
+    document.getElementById('legislation-select').addEventListener('change', (e) => {
+        const selectedTitle = e.target.value;
+        const container = document.getElementById('legislation-results');
+        container.innerHTML = '';
+
+        if (selectedTitle) {
+            // In a full implementation, you'd fetch details for this specific legislation
+            // For now, we just display the title, as that's what the API provides in the list.
+            container.innerHTML = `<div class="bg-gray-50 p-4 rounded-lg shadow mb-4">
+                                        <h4 class="font-bold text-lg">${selectedTitle}</h4>
+                                        <p>Select legislation to view full text or details.</p>
+                                   </div>`;
+        }
+    });
+    
+    // Form Drafter - UPDATED to use fetched templates
+    document.getElementById('form-template-select').addEventListener('change', (e) => {
+        const template = formTemplates[e.target.value] || '';
+        document.getElementById('form-editor').value = template;
+    });
+
+    // Contract Drafter - UPDATED to use fetched templates
+    const contractTypeSelect = document.getElementById('contract-type');
+    const contractFieldsContainer = document.getElementById('contract-fields');
+
+    function generateContractFields() {
+        const contractType = contractTypeSelect.value;
+        if (!contractTemplates[contractType]) return; // Guard against empty templates
+        const fields = contractTemplates[contractType].fields;
+        contractFieldsContainer.innerHTML = '';
+        fields.forEach(field => {
+            const input = document.createElement('input');
+            input.type = field.type || 'text';
+            input.id = field.id;
+            input.placeholder = field.placeholder;
+            input.className = 'w-full p-2 border rounded mb-2';
+            contractFieldsContainer.appendChild(input);
+        });
+    }
+    
+    contractTypeSelect.addEventListener('change', generateContractFields);
+
+    document.getElementById('generate-contract-btn').addEventListener('click', () => {
+        const contractType = contractTypeSelect.value;
+        if (!contractTemplates[contractType]) return;
+        let contractText = contractTemplates[contractType].template;
+        
+        contractTemplates[contractType].fields.forEach(field => {
+            const value = document.getElementById(field.id).value;
+            const regex = new RegExp(`\\[${field.placeholder}\\]`, 'g');
+            contractText = contractText.replace(regex, value || `[${field.placeholder}]`);
+        });
+        
+        document.getElementById('contract-output').value = contractText;
+    });
+    
+    // Clipboard functionality (no changes needed here)
+    function copyToClipboard(text, btn) {
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(() => {
+            const originalText = btn.innerText;
+            btn.innerText = 'Copied!';
+            setTimeout(() => { btn.innerText = originalText; }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
+    }
+
+    document.getElementById('copy-form-btn').addEventListener('click', (e) => {
+        const text = document.getElementById('form-editor').value;
+        copyToClipboard(text, e.target);
+    });
+
+    document.getElementById('copy-contract-btn').addEventListener('click', (e) => {
+        const text = document.getElementById('contract-output').value;
+        copyToClipboard(text, e.target);
+    });
+
+    // Initial setup - Call the new async functions
+    document.addEventListener('DOMContentLoaded', () => {
+        populateDropdowns();
+        fetchTemplates();
+    });
+</script>
