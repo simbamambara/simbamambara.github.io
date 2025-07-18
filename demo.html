@@ -3,256 +3,391 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zimbabwe LexLM</title>
+    <title>Zimbabwe LexLM - AI-Powered Legal Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        .tab-content {
-            display: none;
+        :root {
+            --primary-blue: #0A2342;
+            --secondary-blue: #2C5D8C;
+            --accent-gold: #D4AF37;
+            --light-bg: #F8F9FA;
+            --dark-text: #212529;
+            --light-text: #ffffff;
         }
-        .tab-content.active {
-            display: block;
-        }
-        .modal {
-            display: none;
-        }
-        .modal.active {
-            display: flex;
-        }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--light-bg); color: var(--dark-text); scroll-behavior: smooth; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Merriweather', serif; color: var(--primary-blue); }
+        .hero-section { background: linear-gradient(rgba(10, 35, 66, 0.85), rgba(10, 35, 66, 0.85)), url('https://www.law.com/img/sites/international-edition/2018/05/Zimbabwe-High-Court.jpg') no-repeat center center; background-size: cover; color: var(--light-text); }
+        .hero-section h1 { color: var(--accent-gold); }
+        .btn-primary { background-color: var(--accent-gold); color: var(--primary-blue); transition: all 0.3s ease; font-weight: 700; border: 2px solid transparent; }
+        .btn-primary:hover { background-color: transparent; color: var(--accent-gold); border-color: var(--accent-gold); }
+        .btn-secondary { background-color: var(--primary-blue); color: white; transition: all 0.3s ease; }
+        .btn-secondary:hover { background-color: var(--secondary-blue); }
+        .section-title { position: relative; padding-bottom: 10px; margin-bottom: 2rem; }
+        .section-title::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 3px; background-color: var(--accent-gold); }
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--primary-blue); color: var(--light-text); display: flex; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; }
+        #gavel { font-size: 5rem; animation: hammer 1.5s infinite; }
+        @keyframes hammer { 0% { transform: rotate(0deg); } 20% { transform: rotate(45deg); } 40% { transform: rotate(-20deg); } 50% { transform: rotate(0deg); } 100% { transform: rotate(0deg); } }
+        #cycling-text { font-family: 'Roboto', sans-serif; font-size: 1.25rem; margin-top: 2rem; color: #ccc; height: 2rem; transition: opacity 0.4s ease-in-out; }
+        #static-boot-text { position: absolute; bottom: 2rem; font-family: 'Merriweather', serif; font-size: 1.5rem; font-weight: 700; color: var(--accent-gold); }
+        .page { display: none; }
+        .page.active { display: block; }
+        .nav-link { cursor: pointer; }
+        .tab-button { transition: all 0.3s ease; border-bottom: 3px solid transparent; }
+        .tab-button.active { border-bottom-color: var(--accent-gold); color: var(--primary-blue); }
+        .search-form { display: none; }
+        .search-form.active { display: block; }
+        .result-card, .legislature-result-card, .contract-template-card, .form-template-card { transition: box-shadow 0.3s ease, transform 0.3s ease; }
+        .result-card:hover, .legislature-result-card:hover, .contract-template-card:hover, .form-template-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        #drafter-live-preview, #form-drafter-live-preview { white-space: pre-wrap; word-wrap: break-word; }
+        .category-link.active { background-color: var(--primary-blue); color: white; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="antialiased">
 
-    <header class="bg-white shadow-md">
-        <div class="container mx-auto px-6 py-4">
-            <h1 class="text-3xl font-bold text-gray-800">Zimbabwe LexLM</h1>
-            <p class="text-gray-600">a Simba Mambara Creation</p>
+    <div id="loading-overlay">
+        <div class="text-center">
+            <div id="gavel"><i class="fas fa-gavel"></i></div>
+            <h3 id="cycling-text">Initializing...</h3>
         </div>
+        <h2 id="static-boot-text">Booting the Moot!</h2>
+    </div>
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-black text-primary-blue">
+                <a href="#" class="nav-link" data-page="home">ZIMLEX<span class="text-accent-gold">.AI</span></a>
+            </div>
+            <div>
+                <a class="nav-link text-gray-700 hover:text-accent-gold px-4 font-medium" data-page="home">About</a>
+                <a class="nav-link text-gray-700 hover:text-accent-gold px-4 font-medium" data-page="judgments">Judgments</a>
+                <a class="nav-link text-gray-700 hover:text-accent-gold px-4 font-medium" data-page="legislature">Legislature</a>
+                <a class="nav-link text-gray-700 hover:text-accent-gold px-4 font-medium" data-page="contracts">Contracts</a>
+                <a class="nav-link text-gray-700 hover:text-accent-gold px-4 font-medium" data-page="forms">Forms</a>
+                <a class="nav-link text-gray-700 hover:text-accent-gold px-4 font-medium" data-page="datacard">Data Card</a>
+                <a href="demo.html" class="ml-4 btn-primary py-2 px-6 rounded-full text-sm">LAUNCH DEMO</a>
+            </div>
+        </nav>
     </header>
 
-    <main class="container mx-auto px-6 py-8">
-        <div class="bg-white rounded-lg shadow-xl">
-            <div class="flex border-b overflow-x-auto">
-                <button class="tab-btn active:border-blue-500 text-gray-700 font-semibold py-4 px-6 block hover:text-blue-500 focus:outline-none border-b-2 font-medium border-blue-500 whitespace-nowrap" data-tab="case-law">
-                    <i class="fas fa-gavel mr-2"></i>Case Law Search
-                </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none whitespace-nowrap" data-tab="legislation">
-                    <i class="fas fa-book mr-2"></i>Legislation Search
-                </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none whitespace-nowrap" data-tab="form-drafter">
-                    <i class="fas fa-file-alt mr-2"></i>Form Drafter
-                </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 block hover:text-blue-500 focus:outline-none whitespace-nowrap" data-tab="contract-drafter">
-                    <i class="fas fa-file-signature mr-2"></i>Contract Drafter
-                </button>
-            </div>
-
-            <div class="p-6">
-                <div id="case-law" class="tab-content active">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Search for Judgments</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <input type="text" id="citation-search" placeholder="Citation (e.g., 2023 ZWSC 1)" class="p-2 border rounded">
-                        <select id="subject-search" class="p-2 border rounded">
-                            <option value="">All Subjects</option>
-                        </select>
-                        <select id="country-search" class="p-2 border rounded">
-                            <option value="">All Countries</option>
-                        </select>
-                        <select id="year-search" class="p-2 border rounded">
-                             <option value="">All Years</option>
-                        </select>
+    <main>
+        <div id="page-home" class="page active">
+            <section class="hero-section py-24 md:py-32">
+                <div class="container mx-auto px-6 text-center">
+                    <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-4">Unlocking Zimbabwean Legal Intelligence</h1>
+                    <p class="text-lg md:text-xl max-w-3xl mx-auto mb-8 text-gray-200">
+                        Leveraging state-of-the-art Natural Language Processing to navigate the complexities of Zimbabwean case law and legislation with unprecedented efficiency and precision.
+                    </p>
+                    <a href="demo.html" class="btn-primary py-3 px-8 rounded-full text-lg">Explore the Platform</a>
+                </div>
+            </section>
+            <section id="about-section" class="py-20 bg-white">
+                <div class="container mx-auto px-6">
+                    <h2 class="section-title text-center text-4xl font-bold">About Zimbabwe LexLM</h2>
+                    <div class="max-w-4xl mx-auto text-center text-gray-700 leading-relaxed mb-16">
+                         <p class="mb-4">
+                            <strong>Zimbabwe LexLM</strong> is a pioneering Natural Language Processing (NLP) model meticulously engineered for the unique legal landscape of Zimbabwe. It addresses a critical gap: the inefficient discovery of legal information due to fragmented databases and the limitations of traditional keyword-based search. For legal practitioners, scholars, and citizens, finding relevant statutes and case precedents has been a slow, manual process that can impede access to justice.
+                        </p>
+                        <p class="mb-4">
+                            Developed as a research project at the Harare Institute of Technology, LexLM was built by further pretraining a sophisticated multilingual transformer model on a massive, specialized corpus. This corpus contains over <strong>83,000 documents</strong> spanning from <strong>1936 to 2024</strong>. It includes decades of Zimbabwean case law, statutes, and legal commentaries, supplemented by relevant cases from South African and historical English courts to capture the nation's rich common-law heritage.
+                        </p>
+                        <p>
+                            The model's architecture is enhanced to understand the intricate network of references between legal documents. This domain-specific adaptation allows LexLM to significantly outperform generic models, achieving a high accuracy of approximately <strong>88%</strong> and a macro-F1 score of <strong>0.865</strong> on legal classification tasks. Zimbabwe LexLM represents a robust, specialized tool designed to empower Zimbabwe's bench and bar, making legal research more efficient, accurate, and accessible, especially in a low-resource jurisdiction.
+                        </p>
                     </div>
-                    <button id="search-btn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Search</button>
-
-                    <div id="search-results" class="mt-8"></div>
-                </div>
-
-                <div id="legislation" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Search for Legislation</h2>
-                    <div class="grid grid-cols-1 gap-4 mb-6">
-                        <select id="legislation-select" class="p-2 border rounded">
-                            <option value="">Select Legislation</option>
-                        </select>
-                    </div>
-                    <div id="legislation-results" class="mt-8"></div>
-                </div>
-
-                <div id="form-drafter" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Draft a Legal Form</h2>
-                    <select id="form-template-select" class="p-2 border rounded mb-4">
-                        <option value="">Select a form template</option>
-                    </select>
-                    <textarea id="form-editor" rows="20" class="w-full p-2 border rounded" placeholder="Your form will be generated here..."></textarea>
-                    <button id="copy-form-btn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 mt-4">Copy to Clipboard</button>
-                </div>
-
-                <div id="contract-drafter" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Draft a Contract</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Contract Details</h3>
-                            <select id="contract-type" class="w-full p-2 border rounded mb-4">
-                            </select>
-                            <div id="contract-fields">
+                     <div class="max-w-6xl mx-auto">
+                        <h3 class="section-title text-center text-3xl font-bold">Corpus at a Glance</h3>
+                        <div class="grid lg:grid-cols-2 gap-8 items-start">
+                            <div class="bg-light-bg p-6 rounded-lg shadow-inner">
+                                <h4 class="text-2xl font-bold mb-4 text-secondary-blue">Corpus Composition</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <h5 class="font-semibold text-lg">Documents by Jurisdiction</h5>
+                                        <div class="mt-2 space-y-2">
+                                            <div class="flex justify-between items-center"><span class="font-medium">Zimbabwe (ZW)</span><span class="font-bold text-primary-blue">43,899</span></div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-blue-600 h-2.5 rounded-full" style="width: 52.65%"></div></div>
+                                            <div class="flex justify-between items-center mt-2"><span class="font-medium">South Africa (ZA)</span><span class="font-bold text-primary-blue">36,454</span></div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-green-600 h-2.5 rounded-full" style="width: 43.72%"></div></div>
+                                            <div class="flex justify-between items-center mt-2"><span class="font-medium">England (Historical)</span><span class="font-bold text-primary-blue">3,031</span></div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-yellow-400 h-2.5 rounded-full" style="width: 3.64%"></div></div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t">
+                                        <h5 class="font-semibold text-lg">Documents by Type</h5>
+                                        <ul class="list-disc list-inside mt-2 space-y-1 text-gray-700">
+                                            <li><strong>Case Law (Total):</strong> 77,133</li>
+                                            <li><strong>Acts of Parliament:</strong> 503</li>
+                                            <li><strong>Statutory Instruments:</strong> 984</li>
+                                            <li><strong>Contracts & Agreements:</strong> 2,549</li>
+                                            <li><strong>Gazettes:</strong> 172</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
-                            <button id="generate-contract-btn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 mt-4">Generate Contract</button>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Generated Contract</h3>
-                            <textarea id="contract-output" rows="20" class="w-full p-2 border rounded bg-gray-50" readonly></textarea>
-                            <button id="copy-contract-btn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 mt-4">Copy to Clipboard</button>
+                            <div class="bg-light-bg p-6 rounded-lg shadow-inner">
+                                 <h4 class="text-2xl font-bold mb-4 text-secondary-blue">Leading Contributors by Jurisdiction</h4>
+                                 <div class="space-y-4">
+                                    <div>
+                                        <h5 class="font-semibold text-lg flex items-center"><img src="https://flagcdn.com/w20/zw.png" class="mr-2">Zimbabwe</h5>
+                                        <ol class="list-decimal list-inside text-sm mt-2 pl-4 text-gray-800">
+                                            <li>High Court (Unreported): <span class="float-right font-semibold">24,701</span></li>
+                                            <li>Cases from Zimbabwe Law Reports (ZLR): <span class="float-right font-semibold">4,190</span></li>
+                                            <li>Supreme Court (Unreported): <span class="float-right font-semibold">2,526</span></li>
+                                            <li>Constitutional Court: <span class="float-right font-semibold">406</span></li>
+                                        </ol>
+                                    </div>
+                                    <div class="border-t pt-4">
+                                         <h5 class="font-semibold text-lg flex items-center"><img src="https://flagcdn.com/w20/za.png" class="mr-2">South Africa</h5>
+                                         <ol class="list-decimal list-inside text-sm mt-2 pl-4 text-gray-800">
+                                            <li>Transvaal Provincial Division: <span class="float-right font-semibold">6,111</span></li>
+                                            <li>Cape Provincial Division: <span class="float-right font-semibold">4,741</span></li>
+                                            <li>Supreme Court of Appeal (Historical): <span class="float-right font-semibold">3,942</span></li>
+                                            <li>Witwatersrand Local Division: <span class="float-right font-semibold">3,451</span></li>
+                                         </ol>
+                                    </div>
+                                    <div class="border-t pt-4">
+                                        <h5 class="font-semibold text-lg flex items-center"><img src="https://flagcdn.com/w20/gb-eng.png" class="mr-2">England (Historical)</h5>
+                                         <ol class="list-decimal list-inside text-sm mt-2 pl-4 text-gray-800">
+                                            <li>Court of Appeal: <span class="float-right font-semibold">1,085</span></li>
+                                            <li>King’s Bench: <span class="float-right font-semibold">837</span></li>
+                                            <li>Chancery Division: <span class="float-right font-semibold">611</span></li>
+                                            <li>House of Lords: <span class="float-right font-semibold">221</span></li>
+                                         </ol>
+                                    </div>
+                                 </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
+        </div>
+        
+        <div id="page-judgments" class="page">
+            <section class="py-20 bg-white">
+                <div class="container mx-auto px-6">
+                    <h2 class="section-title text-center text-4xl font-bold">Search Judgments</h2>
+                    <div class="border-b border-gray-200 mb-8">
+                        <nav class="flex justify-center -mb-px space-x-8" aria-label="Tabs"><button class="tab-button active text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 font-medium text-lg" data-target="search-by-subject">Search by Precedence Subject</button><button class="tab-button text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 font-medium text-lg" data-target="advanced-search">Advanced Search</button></nav>
+                    </div>
+                    <div id="search-by-subject" class="search-form active">
+                        <div class="max-w-2xl mx-auto"><p class="text-center text-gray-600 mb-4">Select a legal subject to find relevant cases.</p><div class="flex space-x-2"><select id="subject-dropdown-input" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white"><option value="">Select a Precedence Subject...</option><option value="Constitutional Law">Constitutional Law</option><option value="Civil Procedure">Civil Procedure</option><option value="Criminal Law">Criminal Law</option><option value="Administrative Law">Administrative Law</option><option value="Contract Law">Contract Law</option><option value="Delict">Delict</option><option value="Labour Law">Labour Law</option></select><button class="btn-secondary px-8 py-3 rounded-md font-bold">Search</button></div></div>
+                        <div id="subject-search-results" class="mt-10 max-w-4xl mx-auto space-y-4"></div>
+                    </div>
+                    <div id="advanced-search" class="search-form">
+                        <div class="max-w-4xl mx-auto bg-light-bg p-8 rounded-lg shadow-inner border"><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><input type="text" placeholder="Case Name or Citation..." class="p-3 border rounded-md"><input type="text" placeholder="Judge Name..." class="p-3 border rounded-md"><select class="p-3 border rounded-md bg-white"><option value="">Select Year</option><option>2024</option><option>2023</option><option>2022</option></select><select class="p-3 border rounded-md bg-white"><option value="">Select Court</option><option>Supreme Court</option><option>High Court - Harare</option></select><select class="p-3 border rounded-md bg-white"><option value="">Select Court Level</option><option>Supreme Court</option><option>High Court</option></select><select class="p-3 border rounded-md bg-white"><option value="">Select Subject</option><option>Civil Procedure</option><option>Criminal Law</option></select></div><button class="btn-secondary w-full mt-6 py-3 rounded-md font-bold text-lg">Search</button></div>
+                        <div id="advanced-search-results" class="mt-10 max-w-5xl mx-auto"><div id="zim-results-container" class="mb-12"><h3 class="text-2xl font-bold mb-4 border-b-2 border-gray-200 pb-2 flex items-center"><img src="https://flagcdn.com/w20/zw.png" class="mr-3">Zimbabwe Cases</h3><div class="space-y-4"></div></div><div id="sa-results-container" class="mb-12"><h3 class="text-2xl font-bold mb-4 border-b-2 border-gray-200 pb-2 flex items-center"><img src="https://flagcdn.com/w20/za.png" class="mr-3">South Africa Cases</h3><div class="space-y-4"></div></div><div id="uk-results-container"><h3 class="text-2xl font-bold mb-4 border-b-2 border-gray-200 pb-2 flex items-center"><img src="https://flagcdn.com/w20/gb-eng.png" class="mr-3">UK Cases (Historical)</h3><div class="space-y-4"></div></div></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="page-legislature" class="page">
+             <section class="py-20 bg-white">
+                <div class="container mx-auto px-6">
+                    <h2 class="section-title text-center text-4xl font-bold">Search Legislature</h2>
+                    <div class="border-b border-gray-200 mb-8"><nav class="flex flex-wrap justify-center -mb-px space-x-6 sm:space-x-8" aria-label="Tabs"><button class="legislature-tab-button tab-button active text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 font-medium text-lg" data-target="search-acts">Acts</button><button class="legislature-tab-button tab-button text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 font-medium text-lg" data-target="search-sis">Statutory Instruments</button><button class="legislature-tab-button tab-button text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 font-medium text-lg" data-target="search-gazettes">Gazettes</button><button class="legislature-tab-button tab-button text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 font-medium text-lg" data-target="search-constitution">Constitution</button></nav></div>
+                    <div class="max-w-2xl mx-auto"><div id="search-acts" class="search-form active"><div class="flex space-x-2"><input type="text" placeholder="Search Acts by name or keyword..." class="w-full p-3 border rounded-md"><button class="btn-secondary px-8 py-3 rounded-md font-bold">Search</button></div></div><div id="search-sis" class="search-form"><div class="flex space-x-2"><input type="text" placeholder="Search S.I.s by number or keyword..." class="w-full p-3 border rounded-md"><button class="btn-secondary px-8 py-3 rounded-md font-bold">Search</button></div></div><div id="search-gazettes" class="search-form"><div class="flex space-x-2"><input type="text" placeholder="Search Gazettes by number or keyword..." class="w-full p-3 border rounded-md"><button class="btn-secondary px-8 py-3 rounded-md font-bold">Search</button></div></div><div id="search-constitution" class="search-form"><p class="text-center text-gray-600">View the foundational legal document of Zimbabwe.</p><button class="btn-secondary w-full mt-4 py-3 rounded-md font-bold">View Constitution</button></div></div>
+                    <div id="legislature-results" class="mt-10 max-w-4xl mx-auto space-y-3"></div>
+                </div>
+            </section>
+        </div>
+
+        <div id="page-contracts" class="page">
+            <section class="py-20 bg-light-bg">
+                <div class="container mx-auto px-6">
+                    <div id="contract-selection-view">
+                        <h2 class="section-title text-center text-4xl font-bold">Contract Template Library</h2>
+                        <div class="flex flex-col md:flex-row gap-8">
+                            <aside class="w-full md:w-1/4"><h3 class="text-xl font-bold mb-4">Categories</h3><div id="contract-categories" class="space-y-2"></div></aside>
+                            <div class="w-full md:w-3/4"><div class="flex items-center mb-4"><input type="text" id="contract-search-input" placeholder="Search for a contract..." class="w-full p-3 border rounded-l-md"><select id="contract-sort-select" class="p-3 border-t border-b bg-white"><option value="alpha">Sort A-Z</option><option value="alpha-desc">Sort Z-A</option></select><button class="btn-secondary px-6 py-3 rounded-r-md"><i class="fa fa-search"></i></button></div><div id="contract-template-list" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div><div id="contract-pagination" class="mt-8 flex justify-center items-center space-x-4"></div></div>
+                        </div>
+                    </div>
+                    <div id="contract-drafter-view" class="hidden">
+                         <button id="back-to-selection-btn" class="mb-6 font-bold text-secondary-blue hover:text-primary-blue"><i class="fas fa-arrow-left mr-2"></i>Back to Template Library</button>
+                         <h2 id="drafter-title" class="section-title text-center text-4xl font-bold"></h2>
+                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                            <div><h3 class="text-2xl font-bold mb-4">Live Preview</h3><div id="drafter-live-preview" class="p-6 bg-white border rounded-lg h-[70vh] overflow-y-auto"></div></div>
+                            <div><div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold">Complete Your Contract</h3><button id="copy-draft-btn" class="btn-primary px-4 py-2 rounded-md text-sm"><i class="fas fa-copy mr-2"></i>Copy Completed Text</button></div><div class="p-4 bg-blue-50 text-blue-800 rounded-md mb-4 text-sm"><p>Fill in the details below. The contract on the left will update automatically.</p></div><div id="drafter-form-fields" class="space-y-4 bg-light-bg p-6 rounded-lg border h-[60vh] overflow-y-auto"></div></div>
+                         </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <div id="page-forms" class="page">
+            <section class="py-20 bg-light-bg">
+                <div class="container mx-auto px-6">
+                    <div id="form-selection-view">
+                        <h2 class="section-title text-center text-4xl font-bold">Court & Legal Forms Library</h2>
+                        <div class="flex flex-col md:flex-row gap-8">
+                            <aside class="w-full md:w-1/4">
+                                <h3 class="text-xl font-bold mb-4">Form Categories</h3>
+                                <div id="form-categories" class="space-y-2"></div>
+                            </aside>
+                            <div class="w-full md:w-3/4">
+                                <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-4">
+                                    <input type="text" id="form-search-input" placeholder="Search by name, number, or rule..." class="sm:col-span-3 p-3 border rounded-md">
+                                    <select id="form-court-level-select" class="p-3 border rounded-md bg-white"><option value="All">All Court Levels</option><option>High Court</option><option>Magistrates' Court</option></select>
+                                    <select id="form-sort-select" class="p-3 border rounded-md bg-white"><option value="alpha">Sort A-Z</option><option value="form-no">Sort by Form No.</option></select>
+                                </div>
+                                <div id="form-template-list" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+                                <div id="form-pagination" class="mt-8 flex justify-center items-center space-x-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="form-drafter-view" class="hidden">
+                         <button id="back-to-form-selection-btn" class="mb-6 font-bold text-secondary-blue hover:text-primary-blue"><i class="fas fa-arrow-left mr-2"></i>Back to Forms Library</button>
+                         <h2 id="form-drafter-title" class="section-title text-center text-4xl font-bold"></h2>
+                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                            <div><h3 class="text-2xl font-bold mb-4">Live Preview</h3><div id="form-drafter-live-preview" class="p-6 bg-white border rounded-lg h-[70vh] overflow-y-auto"></div></div>
+                            <div><div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold">Complete Your Form</h3><button id="copy-form-btn" class="btn-primary px-4 py-2 rounded-md text-sm"><i class="fas fa-copy mr-2"></i>Copy Completed Text</button></div><div class="p-4 bg-blue-50 text-blue-800 rounded-md mb-4 text-sm"><p>Fill in the details below. The form on the left will update automatically.</p></div><div id="form-drafter-form-fields" class="space-y-4 bg-light-bg p-6 rounded-lg border h-[60vh] overflow-y-auto"></div></div>
+                         </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="page-datacard" class="page">
+             <section class="py-20 bg-light-bg">
+                <div class="container mx-auto px-6">
+                     <h2 class="section-title text-center text-4xl font-bold">Data Card: Zimbabwe Legal Corpus v1.0</h2>
+                     <div class="max-w-4xl mx-auto bg-white p-8 sm:p-12 rounded-lg shadow-lg text-gray-800 leading-relaxed space-y-8">
+                        <div><h3 class="text-2xl font-bold mb-3">Overview</h3><p>The Zimbabwe Legal Corpus v1.0 is a vast collection of legal documents and case law from Zimbabwe and neighbouring jurisdictions. It brings together 77,133 records, including judgments, law reports, statutes, and various other legal texts, into one dataset. The corpus covers material from the early 20th century up to 2024, focusing on Zimbabwe’s legal materials after independence from 1980 onwards. Each entry represents a single legal document, usually a court judgment or legislative text, accompanied by structured metadata like case name, date, court, and other relevant details, along with the full text.</p></div>
+                        <div><h3 class="text-2xl font-bold mb-3">Key Features</h3><ul class="list-disc list-inside space-y-2"><li><strong>Comprehensive Case Law:</strong> Includes reported judgments from official law report series from Zimbabwe, South Africa, and historical English reports, as well as unreported judgments from Zimbabwean courts.</li><li><strong>Legislation and Other Legal Texts:</strong> Consists of Acts of Parliament, statutory instruments, government gazettes, and related legal documents specific to Zimbabwe.</li><li><strong>Structured Metadata:</strong> Each entry features fields like case title, parties, court, decision date, judges, headnotes, cited references, and other available information.</li><li><strong>Full Texts:</strong> Contains the complete content of each judgment or document to support textual analysis research.</li></ul></div>
+                        <div><h3 class="text-2xl font-bold mb-3">Data Collection and Sources</h3><p class="mb-2">The dataset was compiled by Mr W Manjoro and Simbarashe Tinotenda Mambara in 2025 from multiple digital archives of court judgments, law report publications, and government documents. The major components include:</p><ul class="list-disc list-inside space-y-2"><li><strong>Zimbabwe Law Reports (ZLR), 1980–2017:</strong> Official reports containing appellate and high court decisions.</li><li><strong>Zimbabwe High Court Judgments, 1997–2024:</strong> Unreported decisions from all High Court seats.</li><li><strong>Zimbabwe Supreme Court Judgments, 1997–2024:</strong> Unreported decisions from the Supreme Court.</li><li><strong>Zimbabwe Constitutional Court Judgments, 2013–2024:</strong> Decisions from the Constitutional Court since its inception.</li><li><strong>South African Law Reports (SALR), 1947–2015:</strong> Included for comparative jurisprudence.</li><li><strong>South African Criminal Law Reports (SACLR), 1990–2020:</strong> Focused on criminal cases for comparative context.</li><li><strong>English Law Reports (ELR), 1936–1943:</strong> Historical reports relevant to Zimbabwe’s common law roots.</li><li><strong>Legislation and Reference Documents:</strong> Including Acts (503 entries), Statutory Instruments (984 entries), and Gazettes (172 entries).</li></ul></div>
+                        <div><h3 class="text-2xl font-bold mb-3">Dataset Structure and Variables</h3><p>The consolidated dataset is a single table with 31 columns. Each row represents one document. Key variables include:</p><ul class="list-disc list-inside space-y-2"><li><strong>Identification Fields:</strong> `case_uid` (unique ID), `volume_id`, `country_code` (ZW, ZA, UK), `document_type`.</li><li><strong>Case Metadata:</strong> `case_name`, `applicant`, `respondent`, `court_code`, `decision_date`, `judges`.</li><li><strong>Summaries:</strong> `flynote` (brief summary), `headnote` (detailed holdings), `subject`.</li><li><strong>References:</strong> `cases_cited`, `legislation`, `counsel_applicant`, `counsel_respondent`.</li><li><strong>Text Content:</strong> `judgment_body`, `raw_text`.</li></ul></div>
+                        <div><h3 class="text-2xl font-bold mb-3">Usage and Licensing</h3><p>This dataset is intended for non-commercial research and educational purposes. While Zimbabwean public records are generally not subject to copyright, editorial content in law reports (headnotes, flynotes) may be copyrighted by the publishers. Users should provide attribution to the compilers (Simbarashe T. Mambara & W. Manjoro, 2025) and cite original sources where appropriate.</p><p class="mt-4 text-sm italic"><strong>Disclaimer:</strong> This dataset is provided as-is and should not be treated as an official source for legal proceedings. Always refer to official court transcripts or law reports for authoritative needs.</p></div>
+                     </div>
+                </div>
+            </section>
         </div>
     </main>
 
-    <div id="judgment-modal" class="modal fixed inset-0 bg-gray-800 bg-opacity-75 items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-2xl w-full max-w-3xl max-h-full overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h3 id="modal-title" class="text-xl font-bold"></h3>
-                    <button id="modal-close" class="text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
-                </div>
-                <div id="modal-body" class="mt-4 prose max-w-none"></div>
-            </div>
-        </div>
+    <div id="full-text-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col"><div class="bg-primary-blue p-4 flex justify-between items-center rounded-t-lg"><h3 id="modal-title" class="text-xl font-bold text-white"></h3><button id="modal-close" class="text-white hover:text-gray-300 text-3xl">&times;</button></div><div id="modal-body" class="p-6 overflow-y-auto whitespace-pre-wrap"></div></div>
     </div>
 
-<script>
-    // ======================================================================
-    // PASTE THE NGROK URL FROM GOOGLE COLAB HERE
-    // ======================================================================
-    const API_BASE_URL = 'https://YOUR_NGROK_URL_HERE.ngrok-free.app'; 
-    // Example: const API_BASE_URL = 'https://1a2b-34-56-78-90.ngrok-free.app';
-    
-    // Store templates and results fetched from the backend
-    let formTemplates = {};
-    let contractTemplates = {};
-    let currentResults = [];
+    <footer class="bg-primary-blue text-white py-8">
+        <div class="container mx-auto px-6 text-center"><p>&copy; 2025 Zimbabwe LexLM. Developed by Simbarashe Tinotenda Mambara.</p><p class="text-xs text-gray-400 mt-2">This is a demonstration landing page based on academic research. The platform is not a substitute for professional legal advice.</p></div>
+    </footer>
 
-    async function populateDropdowns() {
-        try {
-            // Use the full API URL
-            const response = await fetch(`${API_BASE_URL}/api/data/dropdowns`);
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
+    <script>
+        // --- MOCK DATA FOR DEMONSTRATION ---
+        const mockResults = { subject: [{ caseName: 'Construction Resources Africa v Central African Building', citation: 'CCZ 20/24', judges: 'Gwaunza DCJ, Patel JCC', court: 'Constitutional Court of Zimbabwe', date: '2024', country: 'ZW', fullText: 'This is the full text for Construction Resources Africa...'},{ caseName: 'Breastplate Service (Pvt) Ltd v Cambria Africa PLC', citation: 'SC 20/20', judges: 'Gwaunza DCJ, Mavangira JA', court: 'Supreme Court of Zimbabwe', date: '2020', country: 'ZW', fullText: 'This is the full text for Breastplate Service...'}], advanced: { zw: [{ caseName: 'ZIMBABWE CASE 1', citation: 'HH 123/24', judges: 'Chitapi J', court: 'High Court - Harare', date: '2024', country: 'ZW', fullText: 'Full text for Zimbabwe Case 1...'}], sa: [{ caseName: 'SOUTH AFRICA CASE 1', citation: '2024 (2) SA 123 (SCA)', judges: 'Maya P', court: 'Supreme Court of Appeal', date: '2024', country: 'ZA', fullText: 'Full text for South Africa Case 1...'}], uk: [{ caseName: 'UK HISTORICAL CASE 1', citation: '[1936] 1 KB 98', judges: 'Lord Atkin', court: 'King\'s Bench', date: '1936', country: 'UK', fullText: 'Full text for UK Historical Case 1...'}] }, legislature: { acts: [{ title: 'Labour Act [Chapter 28:01]', type: 'Act of Parliament', fullText: 'Full text of the Labour Act...'}], sis: [{ title: 'Statutory Instrument 88 of 2020', type: 'Statutory Instrument', fullText: 'Full text of S.I. 88 of 2020...'}], gazettes: [{ title: 'General Notice 123 of 2021', type: 'Government Gazette', fullText: 'Full text of General Notice 123 of 2021...'}], constitution: [{ title: 'Constitution of Zimbabwe Amendment (No. 20) Act 2013', type: 'Constitution', fullText: 'We the people of Zimbabwe...'}]} };
+        const mockContracts = [ { id: 'lease1', title: 'Residential Lease Agreement', category: 'Real Estate', description: 'Standard agreement for renting residential property.', fullText: `RESIDENTIAL LEASE AGREEMENT\n\nThis Lease is made on [Date] between [Landlord Name] (Landlord) and [Tenant Name] (Tenant).\n\n1. PROPERTY: Landlord leases to Tenant the premises at [Property Address].\n2. RENT: Tenant will pay $[Monthly Rent] per month.\n3. TERM: The lease begins on [Start Date] and ends on [End Date].`, fields: ['Date', 'Landlord Name', 'Tenant Name', 'Property Address', 'Monthly Rent', 'Start Date', 'End Date']}, { id: 'emp1', title: 'Employment Contract', category: 'Employment', description: 'Outlines terms for an employer and a new employee.', fullText: `EMPLOYMENT AGREEMENT\n\nThis Agreement is between [Company Name] (Employer) and [Employee Name] (Employee).\n\n1. POSITION: Employee's title is [Job Title].\n2. SALARY: Annual salary will be $[Annual Salary].\n3. START DATE: Employment commences on [Start Date].`, fields: ['Company Name', 'Employee Name', 'Job Title', 'Annual Salary', 'Start Date']}, { id: 'nda1', title: 'Non-Disclosure Agreement', category: 'Business & Commercial', description: 'A confidentiality agreement between two or more parties.', fullText: `NON-DISCLOSURE AGREEMENT\n\nThis NDA is between [Disclosing Party] and [Receiving Party], effective [Effective Date].\n\nConfidential Information shall mean any information disclosed by the Disclosing Party relating to [Purpose of Disclosure].`, fields: ['Disclosing Party', 'Receiving Party', 'Effective Date', 'Purpose of Disclosure']}, { id: 'sale1', title: 'Bill of Sale', category: 'Business & Commercial', description: 'Transfers ownership of a personal item from a seller to a buyer.', fullText: `BILL OF SALE\n\nOn this day, [Date of Sale], [Seller Name] (Seller) sells to [Buyer Name] (Buyer) the following item: [Item Description].\n\nThe purchase price is $[Purchase Price].`, fields: ['Date of Sale', 'Seller Name', 'Buyer Name', 'Item Description', 'Purchase Price']} ];
+        const mockForms = [ { id: 'hc37', title: 'Writ of Execution Against Movables (Provisional Sentence)', formNumber: '37', rule: '322', category: 'High Court', description: 'Official writ under Rule 322 to execute against movable goods based on a provisional sentence.', fullText: `Form No. 37\nWrit of execution against movables (provisional sentence)\n(Rule 322)\n\nCase No. [Case Number]\n\nIn the matter between:\n[Plaintiff Name], Plaintiff\nand\n[Defendant Name], Defendant\n\nTo the Sheriff for Zimbabwe or his lawful Deputy:\n\nYou are required and directed to attach and take into execution the movable goods of [Defendant Name] the above-mentioned defendant, of [Defendant Address] and of the same to cause to be realized the sum of $[Sum to be Realized] together with interest thereon at [Interest Rate]% per annum from the [Interest Start Date] and the sum of $[Taxed Costs] for the taxed costs and charges of [Plaintiff Name] the above-mentioned plaintiff, which he recovered provisionally by judgment of this Court on the [Date of Judgment].`, fields: ['Case Number', 'Plaintiff Name', 'Defendant Name', 'Defendant Address', 'Sum to be Realized', 'Interest Rate', 'Interest Start Date', 'Taxed Costs', 'Date of Judgment']}, { id: 'hc36', title: 'Writ of Execution Against Immovable Property', formNumber: '36', rule: '322', category: 'High Court', description: 'Official writ under Rule 322 to execute against immovable property after movables are insufficient.', fullText: `Form No. 36\nWrit of execution against Immovable property\n(Rule 322)\n\nCase No. [Case Number]\n\nIn the matter between:\n[Plaintiff Name], Plaintiff\nand\n[Defendant Name], Defendant\n\nTo the Sheriff for Zimbabwe or his lawful Deputy:\n\nWHEREAS you were directed to cause to be realized the sum of $[Judgment Debt] in satisfaction of a judgment debt and costs obtained by [Plaintiff Name] against [Defendant Name] in this Court on the [Date of Judgment].\n\nAND WHEREAS your return stated: "[Deputy Sheriff's Return on Movables]"\n\nNOW, therefore, you are required and directed to attach and take into execution the immovable property of the said [Defendant Name] being [Description of Immovable Property] to cause to be realized therefrom the sum of $[Sum to be Realized] together with the costs hereof and of the prior writ amounting to $[Costs of Prior Writ].`, fields: ['Case Number', 'Plaintiff Name', 'Defendant Name', 'Judgment Debt', 'Date of Judgment', `Deputy Sheriff's Return on Movables`, 'Description of Immovable Property', 'Sum to be Realized', 'Costs of Prior Writ']}, { id: 'hc35', title: 'Writ of Execution Against Movable and Immovable Property', formNumber: '35', rule: '322', category: 'High Court', description: 'Official writ under Rule 322 to execute against both movable and immovable property.', fullText: `Form No. 35\nWrit of execution against movable and immovable property\n(Rule 322)\n\nCase No. [Case Number]\n\nIn the matter between:\n[Plaintiff Name], Plaintiff\nand\n[Defendant Name], Defendant\n\nTo the Sheriff for Zimbabwe or his lawful Deputy:\n\nYou are required and directed to attach and take into execution the movable goods of [Defendant Name] of [Defendant Address], and of the same cause to be realized the sum of $[Sum to be Realized] together with interest thereon at the rate of [Interest Rate]% per annum from the [Interest Start Date] and the sum of $[Taxed Costs] for the taxed costs and charges of the above-mentioned plaintiff, which he recovered by judgment of this Court dated the [Date of Judgment].\n\nYou are further required and directed that if you are unable to find any movable goods...that you attach and take possession of [Description of Immovable Property].`, fields: ['Case Number', 'Plaintiff Name', 'Defendant Name', 'Defendant Address', 'Sum to be Realized', 'Interest Rate', 'Interest Start Date', 'Taxed Costs', 'Date of Judgment', 'Description of Immovable Property']}, { id: 'mc1', title: 'Summons Commencing Action', formNumber: '1', rule: 'N/A', category: 'Magistrates\' Court', description: 'Standard summons form to initiate a civil action in the Magistrates\' Court.', fullText: `SUMMONS COMMENCING ACTION\n\nIn the Magistrates' Court for the province of [Province]\nHeld at [Court Location]\n\nCase No. [Case Number]\nBetween:\n[Plaintiff's Full Name], Plaintiff\nand\n[Defendant's Full Name], Defendant`, fields: ['Province', 'Court Location', 'Case Number', 'Plaintiff\'s Full Name', 'Defendant\'s Full Name']}, { id: 'deed1', title: 'Agreement of Sale (Property)', formNumber: 'N/A', rule: 'N/A', category: 'Deeds & Property', description: 'A contract for the sale and purchase of immovable property.', fullText: `AGREEMENT OF SALE\n\nMEMORANDUM OF AGREEMENT made between\n[Seller's Name] (the "Seller")\nand\n[Buyer's Name] (the "Buyer")\n\nRegarding the property at [Property Address].\nPurchase price is $[Purchase Price].`, fields: ['Seller\'s Name', 'Buyer\'s Name', 'Property Address', 'Purchase Price']} ];
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const loadingTexts = ["Loading Judgments...", "Parsing Statutes...", "Indexing Precedents...", "Compiling Case Law...", "Engaging AI Counsel...", "Finalizing Arguments..."];
+            let textIndex = 0;
+            const loadingElement = document.getElementById('loading-overlay');
+            const cyclingTextElement = document.getElementById('cycling-text');
+            const interval = setInterval(() => { textIndex = (textIndex + 1) % loadingTexts.length; cyclingTextElement.style.opacity = 0; setTimeout(() => { cyclingTextElement.innerText = loadingTexts[textIndex]; cyclingTextElement.style.opacity = 1; }, 400); }, 2000);
+            setTimeout(() => { clearInterval(interval); loadingElement.style.transition = 'opacity 1s ease-out'; loadingElement.style.opacity = 0; setTimeout(() => { loadingElement.style.display = 'none'; }, 1000); }, 6000);
+
+            const modal = document.getElementById('full-text-modal');
+            const openModal = (title, text) => { if (!modal) return; modal.querySelector('#modal-title').textContent = title; modal.querySelector('#modal-body').textContent = text || 'Full text not available for this document.'; modal.classList.remove('hidden'); modal.classList.add('flex'); };
+            document.getElementById('modal-close')?.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
             
-            // ... (The rest of the populateDropdowns function is the same)
-            const yearSelect = document.getElementById('year-search');
-            yearSelect.innerHTML = '<option value="">All Years</option>';
-            data.years.forEach(year => {
-                const option = document.createElement('option');
-                option.value = year; option.innerText = year; yearSelect.appendChild(option);
-            });
-            const subjectSelect = document.getElementById('subject-search');
-            subjectSelect.innerHTML = '<option value="">All Subjects</option>';
-            data.subjects.forEach(subject => {
-                const option = document.createElement('option');
-                option.value = subject; option.innerText = subject; subjectSelect.appendChild(option);
-            });
-            const countrySelect = document.getElementById('country-search');
-            countrySelect.innerHTML = '<option value="">All Countries</option>';
-            data.countries.forEach(country => {
-                const option = document.createElement('option');
-                option.value = country; option.innerText = country; countrySelect.appendChild(option);
-            });
-            const legislationSelect = document.getElementById('legislation-select');
-            legislationSelect.innerHTML = '<option value="">Select Legislation</option>';
-            data.legislation.forEach(title => {
-                if (title && title !== 'N/A') {
-                    const option = document.createElement('option');
-                    option.value = title; option.innerText = title; legislationSelect.appendChild(option);
-                }
-            });
-        } catch (error) {
-            console.error("Failed to fetch dropdown data from Colab:", error);
-            alert("Could not connect to the backend. Please ensure the Google Colab notebook is running.");
-        }
-    }
-    
-    async function fetchTemplates() {
-        try {
-            // Use the full API URL
-            const response = await fetch(`${API_BASE_URL}/api/draft/templates`);
-            // ... (The rest of the function is the same, only the URL changes)
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            formTemplates = data.forms;
-            contractTemplates = data.contracts;
-            const formSelect = document.getElementById('form-template-select');
-            formSelect.innerHTML = '<option value="">Select a form template</option>';
-            Object.keys(formTemplates).forEach(key => {
-                const option = document.createElement('option');
-                option.value = key; option.innerText = (key.charAt(0).toUpperCase() + key.slice(1)).replace(/_/g, ' '); formSelect.appendChild(option);
-            });
-            const contractSelect = document.getElementById('contract-type');
-            contractSelect.innerHTML = '';
-            Object.keys(contractTemplates).forEach(key => {
-                const option = document.createElement('option');
-                option.value = key; option.innerText = contractTemplates[key].template.split('\n')[0]; contractSelect.appendChild(option);
-            });
-            generateContractFields();
-        } catch (error) {
-            console.error("Failed to fetch templates:", error);
-        }
-    }
+            document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const pageId = link.getAttribute('data-page'); document.querySelectorAll('.page').forEach(page => page.classList.remove('active')); const targetPage = document.getElementById(`page-${pageId}`); if (targetPage) { targetPage.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); } }); });
 
-    document.getElementById('search-btn').addEventListener('click', async () => {
-        const citation = document.getElementById('citation-search').value;
-        const subject = document.getElementById('subject-search').value;
-        const country = document.getElementById('country-search').value;
-        const year = document.getElementById('year-search').value;
-        const params = new URLSearchParams({ citation, subject, country, year });
-        const resultsContainer = document.getElementById('search-results');
-        resultsContainer.innerHTML = '<p class="text-gray-500">Searching...</p>';
-        try {
-            // Use the full API URL
-            const response = await fetch(`${API_BASE_URL}/api/search/case-law?${params.toString()}`);
-            if (!response.ok) throw new Error('Search failed');
-            currentResults = await response.json();
-            displayResults(currentResults);
-        } catch (error) {
-            resultsContainer.innerHTML = '<p class="text-red-500">Error: Could not fetch search results. Is the Colab backend running?</p>';
-            console.error("Search failed:", error);
-        }
-    });
+            const setupTabSystem = (pageElement, buttonSelector, formSelector) => { const tabButtons = pageElement.querySelectorAll(buttonSelector); const searchForms = pageElement.querySelectorAll(formSelector); tabButtons.forEach(button => { button.addEventListener('click', () => { tabButtons.forEach(btn => btn.classList.remove('active')); button.classList.add('active'); const targetId = button.getAttribute('data-target'); searchForms.forEach(form => { form.id === targetId ? form.classList.add('active') : form.classList.remove('active'); }); }); }); };
 
-    // --- NO MORE CHANGES NEEDED BELOW THIS LINE ---
-    // (The rest of the functions like displayResults, resultCard, openModal, etc. are identical)
-    
-    function displayResults(results) {
-        const resultsContainer = document.getElementById('search-results');
-        resultsContainer.innerHTML = '';
-        if (results.length === 0) { resultsContainer.innerHTML = '<p class="text-gray-500">No results found.</p>'; return; }
-        const zimResults = results.filter(r => r.country === 'Zimbabwe');
-        const foreignResults = results.filter(r => r.country !== 'Zimbabwe' && r.country !== 'N/A');
-        if (zimResults.length > 0) { resultsContainer.innerHTML += '<h3 class="text-xl font-bold mb-2 text-gray-700">Zimbabwean Judgments</h3>'; zimResults.forEach(r => resultsContainer.innerHTML += resultCard(r)); }
-        if (foreignResults.length > 0) { resultsContainer.innerHTML += '<h3 class="text-xl font-bold mt-6 mb-2 text-gray-700">Foreign Judgments</h3>'; foreignResults.forEach(r => resultsContainer.innerHTML += resultCard(r)); }
-        document.querySelectorAll('.view-judgment-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const citation = e.target.dataset.citation; const judgment = currentResults.find(j => j.citation === citation); if (judgment) { openModal(judgment); }
-            });
+            const judgmentsPage = document.getElementById('page-judgments');
+            if(judgmentsPage) setupTabSystem(judgmentsPage, '.tab-button', '.search-form');
+            const legislaturePage = document.getElementById('page-legislature');
+            if(legislaturePage) setupTabSystem(legislaturePage, '.legislature-tab-button', '.search-form');
+            const contractsPage = document.getElementById('page-contracts');
+            if (contractsPage) { /* ... contracts page logic ... */ }
+            const formsPage = document.getElementById('page-forms');
+            if (formsPage) {
+                const selectionView = document.getElementById('form-selection-view');
+                const drafterView = document.getElementById('form-drafter-view');
+                const templateListContainer = document.getElementById('form-template-list');
+                const searchInput = document.getElementById('form-search-input');
+                const categoryContainer = document.getElementById('form-categories');
+                let originalDrafterText = '';
+                const setupFormDrafter = (formId) => {
+                    const form = mockForms.find(f => f.id === formId);
+                    if (!form) return;
+                    originalDrafterText = form.fullText;
+                    document.getElementById('form-drafter-title').textContent = `${form.title}`;
+                    const fieldsContainer = document.getElementById('form-drafter-form-fields');
+                    fieldsContainer.innerHTML = '';
+                    const placeholders = [...originalDrafterText.matchAll(/\[(.*?)\]/g)];
+                    const fields = placeholders.map(match => match[1]);
+                    fields.forEach(field => {
+                        const div = document.createElement('div');
+                        const label = document.createElement('label');
+                        label.className = 'block text-sm font-medium text-gray-700';
+                        label.textContent = field;
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.placeholder = `Enter ${field}...`;
+                        input.dataset.placeholder = `[${field}]`;
+                        input.className = 'w-full p-2 border rounded-md mt-1';
+                        input.addEventListener('input', updateFormDrafterPreview);
+                        div.appendChild(label);
+                        div.appendChild(input);
+                        fieldsContainer.appendChild(div);
+                    });
+                    updateFormDrafterPreview();
+                    selectionView.classList.add('hidden');
+                    drafterView.classList.remove('hidden');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+                const updateFormDrafterPreview = () => {
+                    let newText = originalDrafterText;
+                    document.querySelectorAll('#form-drafter-form-fields input').forEach(input => {
+                        const placeholder = input.dataset.placeholder;
+                        const value = input.value;
+                        const regex = new RegExp(placeholder.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g');
+                        const replacement = value ? `<span class="bg-yellow-200 font-bold px-1 rounded">${value}</span>` : `<span class="text-gray-400 font-mono">__________</span>`;
+                        newText = newText.replace(regex, replacement);
+                    });
+                    document.getElementById('form-drafter-live-preview').innerHTML = newText;
+                };
+                const renderFormTemplates = (filter = '', category = 'All') => {
+                    templateListContainer.innerHTML = '';
+                    let filteredForms = mockForms;
+                    if (category !== 'All') { filteredForms = filteredForms.filter(f => f.category === category); }
+                    if (filter) {
+                        const lowerFilter = filter.toLowerCase();
+                        filteredForms = filteredForms.filter(f => f.title.toLowerCase().includes(lowerFilter) || (f.formNumber && f.formNumber.includes(lowerFilter)) || (f.rule && f.rule.includes(lowerFilter)));
+                    }
+                    if (filteredForms.length === 0) { templateListContainer.innerHTML = `<p class="text-gray-500 col-span-full text-center">No forms found.</p>`; return; }
+                    filteredForms.forEach(form => {
+                        const card = document.createElement('div');
+                        card.className = 'form-template-card bg-white p-6 rounded-lg border shadow-sm flex flex-col';
+                        card.innerHTML = `<div><h4 class="text-xl font-bold text-secondary-blue">${form.title}</h4><p class="text-sm text-gray-500 mt-1">${form.category} | Form No. ${form.formNumber} | Rule ${form.rule}</p><p class="text-sm text-gray-600 mt-2 flex-grow">${form.description}</p></div><button class="btn-secondary w-full mt-4 py-2 rounded-md font-bold">Draft This Form</button>`;
+                        card.querySelector('button').addEventListener('click', () => setupFormDrafter(form.id));
+                        templateListContainer.appendChild(card);
+                    });
+                };
+                const renderFormCategories = () => {
+                    const categories = ['All', ...new Set(mockForms.map(f => f.category))];
+                    categoryContainer.innerHTML = '';
+                    categories.forEach(category => {
+                        const link = document.createElement('a');
+                        link.href = '#';
+                        link.textContent = category;
+                        link.dataset.category = category;
+                        link.className = 'category-link block p-3 rounded-md text-gray-700 hover:bg-blue-100';
+                        if (category === 'All') link.classList.add('active', 'font-bold');
+                        link.addEventListener('click', (e) => { e.preventDefault(); document.querySelectorAll('#form-categories .category-link').forEach(l => l.classList.remove('active', 'font-bold')); link.classList.add('active', 'font-bold'); renderFormTemplates(searchInput.value, category); });
+                        categoryContainer.appendChild(link);
+                    });
+                };
+                document.getElementById('back-to-form-selection-btn').addEventListener('click', () => { drafterView.classList.add('hidden'); selectionView.classList.remove('hidden'); });
+                document.getElementById('copy-form-btn').addEventListener('click', (e) => { const textToCopy = document.getElementById('form-drafter-live-preview').innerText; navigator.clipboard.writeText(textToCopy).then(() => { const button = e.currentTarget; const originalText = button.innerHTML; button.innerHTML = `<i class="fas fa-check mr-2"></i>Copied!`; setTimeout(() => { button.innerHTML = originalText; }, 2000); }); });
+                searchInput.addEventListener('input', () => { const activeCategory = document.querySelector('#form-categories .category-link.active').dataset.category; renderFormTemplates(searchInput.value, activeCategory); });
+                renderFormCategories();
+                renderFormTemplates();
+            }
         });
-    }
-    function resultCard(r) { return `<div class="bg-gray-50 p-4 rounded-lg shadow mb-4"><h4 class="font-bold text-lg">${r.case_name} (${r.citation})</h4><p><strong>Subject:</strong> ${r.subject}</p><p><strong>Country:</strong> ${r.country}</p><p><strong>Year:</strong> ${r.year}</p><button class="view-judgment-btn mt-2 text-blue-600 hover:underline" data-citation="${r.citation}">View Judgment</button></div>`; }
-    const modal = document.getElementById('judgment-modal'); const modalClose = document.getElementById('modal-close');
-    function openModal(judgment) { document.getElementById('modal-title').innerText = `${judgment.case_name} - ${judgment.citation}`; document.getElementById('modal-body').innerText = judgment.body || 'Full text not available.'; modal.classList.add('active'); }
-    modalClose.addEventListener('click', () => modal.classList.remove('active'));
-    window.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
-    const tabs = document.querySelectorAll('.tab-btn'); const tabContents = document.querySelectorAll('.tab-content');
-    tabs.forEach(tab => { tab.addEventListener('click', () => { const tabId = tab.dataset.tab; tabs.forEach(t => t.classList.remove('border-blue-500', 'text-gray-800', 'font-semibold')); tab.classList.add('border-blue-500', 'text-gray-800', 'font-semibold'); tabContents.forEach(content => content.classList.remove('active')); document.getElementById(tabId).classList.add('active'); }); });
-    document.getElementById('legislation-select').addEventListener('change', (e) => { const selectedTitle = e.target.value; const container = document.getElementById('legislation-results'); container.innerHTML = ''; if (selectedTitle) { container.innerHTML = `<div class="bg-gray-50 p-4 rounded-lg shadow mb-4"><h4 class="font-bold text-lg">${selectedTitle}</h4><p>Full text view for legislation can be implemented here.</p></div>`; } });
-    document.getElementById('form-template-select').addEventListener('change', (e) => { const template = formTemplates[e.target.value] || ''; document.getElementById('form-editor').value = template; });
-    const contractTypeSelect = document.getElementById('contract-type'); const contractFieldsContainer = document.getElementById('contract-fields');
-    function generateContractFields() { const contractType = contractTypeSelect.value; if (!contractTemplates[contractType]) return; const fields = contractTemplates[contractType].fields; contractFieldsContainer.innerHTML = ''; fields.forEach(field => { const input = document.createElement('input'); input.type = field.type || 'text'; input.id = field.id; input.placeholder = field.placeholder; input.className = 'w-full p-2 border rounded mb-2'; contractFieldsContainer.appendChild(input); }); }
-    contractTypeSelect.addEventListener('change', generateContractFields);
-    document.getElementById('generate-contract-btn').addEventListener('click', () => { const contractType = contractTypeSelect.value; if (!contractTemplates[contractType]) return; let contractText = contractTemplates[contractType].template; contractTemplates[contractType].fields.forEach(field => { const value = document.getElementById(field.id).value; const regex = new RegExp(`\\[${field.placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\]`, 'g'); contractText = contractText.replace(regex, value || `[${field.placeholder}]`); }); document.getElementById('contract-output').value = contractText; });
-    function copyToClipboard(text, btn) { if (!text) return; navigator.clipboard.writeText(text).then(() => { const originalText = btn.innerText; btn.innerText = 'Copied!'; setTimeout(() => { btn.innerText = originalText; }, 2000); }).catch(err => { console.error('Failed to copy text: ', err); }); }
-    document.getElementById('copy-form-btn').addEventListener('click', (e) => { const text = document.getElementById('form-editor').value; copyToClipboard(text, e.target); });
-    document.getElementById('copy-contract-btn').addEventListener('click', (e) => { const text = document.getElementById('contract-output').value; copyToClipboard(text, e.target); });
-    document.addEventListener('DOMContentLoaded', () => { populateDropdowns(); fetchTemplates(); });
-</script>
+    </script>
 </body>
 </html>
