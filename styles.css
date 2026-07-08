@@ -708,3 +708,65 @@ li + li {
     gap: 0.75rem;
   }
 }
+
+.background-layout {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.what-i-do-card {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) 1fr;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.what-i-do-heading h2 {
+  margin-top: 0.35rem;
+}
+
+.what-i-do-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.what-i-do-grid h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.what-i-do-grid p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.background-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.card-kicker {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.background-card-grid .mini-card ul {
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .what-i-do-card {
+    grid-template-columns: 1fr;
+  }
+
+  .what-i-do-grid,
+  .background-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
